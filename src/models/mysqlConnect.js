@@ -6,11 +6,11 @@ async function connect() {
   }
 
   const connection = await mysql.createConnection({
-    host: 'mysql.infocimol.com.br',
-    user: 'infocimol',
-    password: 'c1i2m3o4l5',
-    database: 'infocimol',
-  });
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_USER_PASS,
+    database: process.env.DB_DATABASE,
+  });  
 
   console.log("Conectou no MySQL!");
 

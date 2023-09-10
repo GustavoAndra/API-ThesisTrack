@@ -1,15 +1,8 @@
-const mysql = require('mysql2/promise');
-
-const pool = mysql.createPool({
-  host: 'mysql.infocimol.com.br',
-  user: 'infocimol',
-  password: 'c1i2m3o4l5',
-  database: 'infocimol',
-});
+const db = require('./mysqlConnect')
 
 // Função para inserir um projeto no banco de dados
 async function inserirProjeto(projeto) {
-  const connection = await pool.getConnection();
+  const connection = await db.connect();
 
   try {
     await connection.beginTransaction();

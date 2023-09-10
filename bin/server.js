@@ -1,4 +1,4 @@
-const app = require('./src/api');
+const app = require('../src/api');
 app.use (function (req, res, next) {
     next();
 });
