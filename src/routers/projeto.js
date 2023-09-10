@@ -1,15 +1,21 @@
 const express = require('express');
 const projetoController = require('../controllers/projetoController');
 const router = express.Router();
+const authMiddleware = require('../middleware/auth');
 
-router.post('/', projetoController.criarProjeto);
+// Rota para criar um projeto (protegida por autenticação JWT)
+router.post('/', authMiddleware.verifyToken, projetoController.criarProjeto);
 
-router.get('/', projetoController.listarProjetos);
+// Rota para listar todos os projetos (protegida por autenticação JWT)
+router.get('/', authMiddleware.verifyToken, projetoController.listarProjetos);
 
-router.get('/:id', projetoController.listarProjetoPorId); // Rota para listar por ID
+// Rota para listar um projeto por ID (protegida por autenticação JWT)
+router.get('/:id', authMiddleware.verifyToken, projetoController.listarProjetoPorId);
 
-router.put('/:id', projetoController.atualizarProjeto);
+// Rota para atualizar um projeto por ID (protegida por autenticação JWT)
+router.put('/:id', authMiddleware.verifyToken, projetoController.atualizarProjeto);
 
-router.delete('/:id', projetoController.deletarProjeto);
+// Rota para deletar um projeto por ID (protegida por autenticação JWT)
+router.delete('/:id', authMiddleware.verifyToken, projetoController.deletarProjeto);
 
 module.exports = router;

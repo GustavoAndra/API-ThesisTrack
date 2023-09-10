@@ -8,25 +8,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 const router = require('./routers/route');
+const userRoute = require("./routers/user");
+const login = require('./routers/user'); // Não é necessário importar 'user' novamente, já foi importado acima
+const projetoRoutes = require('./routers/projeto');
+
 app.use(router);
 
-const userRoute = require("./routers/user");
-app.use('/user', userRoute);
+app.use('/user', userRoute); // Rota para manipulação de usuários
 
-const login = require('./routers/user');
-app.use('/login', login);
+app.use('/login', login); // Rota para autenticação de usuários
 
-// Definir as rotas do projeto
-const projetoRoutes = require('./routers/projeto');
-app.use('/projeto/adiciona', projetoRoutes);
+app.use('/projeto/adiciona', projetoRoutes); // Rota para adicionar projeto
 
-const listaprojetoRoutes = require('./routers/projeto');
-app.use('/projeto/listar', listaprojetoRoutes);
+app.use('/projeto/listar', projetoRoutes); // Rota para listar projetos
 
-const atualizarProjetoRoutes = require('./routers/projeto');
-app.use('/projeto/atualiza', atualizarProjetoRoutes);
+app.use('/projeto/atualiza', projetoRoutes); // Rota para atualizar projeto
 
-const deleteProjetoRoutes = require('./routers/projeto');
-app.use('/projeto/delete', deleteProjetoRoutes);
+app.use('/projeto/delete', projetoRoutes); // Rota para deletar projeto
 
 module.exports = app;
