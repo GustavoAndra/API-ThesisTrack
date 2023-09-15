@@ -16,7 +16,7 @@ app.use(router);
 
 app.use('/user', userRoute); // Rota para manipulação de usuários
 
-app.use('/login', login); // Rota para autenticação de usuários
+app.use('/user/login', login);// Rota para autenticação de usuários
 
 app.use('/projeto/adiciona', projetoRoutes); // Rota para adicionar projeto
 
