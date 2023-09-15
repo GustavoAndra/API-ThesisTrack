@@ -9,14 +9,13 @@ app.use(express.json());
 
 const router = require('./routers/route');
 const userRoute = require("./routers/user");
-const login = require('./routers/user'); // Não é necessário importar 'user' novamente, já foi importado acima
 const projetoRoutes = require('./routers/projeto');
 
 app.use(router);
 
 app.use('/user', userRoute); // Rota para manipulação de usuários
 
-app.use('/user/login', login);// Rota para autenticação de usuários
+app.use('/login', userRoute);// Rota para autenticação de usuários
 
 app.use('/projeto/adiciona', projetoRoutes); // Rota para adicionar projeto
 
