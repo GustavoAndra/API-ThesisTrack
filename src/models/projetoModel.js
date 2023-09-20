@@ -52,24 +52,48 @@ async function criarProjeto({
 async function listarProjetos() {
     try {
         const connection = await connect(); // Conecta ao banco de dados
-        const [rows] = await connection.query('SELECT * FROM projeto'); // Executa a query para listar projetos
-        return { success: true, data: rows }; // Retorna os projetos encontrados
+        const [rows] = await connection.query(`
+            SELECT 
+                projeto.*,
+                GROUP_CONCAT(DISTINCT autor.nome) AS autores,
+                orientador.nome AS orientador
+            FROM projeto
+            LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+            LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+            LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+            LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+            GROUP BY projeto.id_projeto
+        `); // Executa a query para listar projetos com nomes dos autores e do orientador
+
+        return { success: true, data: rows }; // Retorna os projetos encontrados com nomes dos autores e do orientador
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projetos' };
     }
 }
 
-// Função para listar um projeto por ID
 async function listarProjetoPorId(projetoId) {
     const connection = await connect(); // Conecta ao banco de dados
     try {
-        const [rows] = await connection.query('SELECT * FROM projeto WHERE id_projeto = ?', [projetoId]); // Executa a query para buscar um projeto por ID
+        // Consulta SQL para buscar um projeto por ID e obter nomes de autores e do orientador
+        const [rows] = await connection.query(`
+            SELECT 
+                projeto.*,
+                GROUP_CONCAT(DISTINCT autor.nome) AS autores,
+                orientador.nome AS orientador
+            FROM projeto
+            LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+            LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+            LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+            LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+            WHERE projeto.id_projeto = ?
+            GROUP BY projeto.id_projeto
+        `, [projetoId]);
 
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
-        return { success: true, data: rows[0] }; // Retorna o projeto encontrado
+        return { success: true, data: rows[0] }; // Retorna o projeto encontrado com nomes dos autores e do orientador
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };
