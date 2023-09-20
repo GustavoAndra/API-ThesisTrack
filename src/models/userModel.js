@@ -15,7 +15,7 @@ const get = async () => {
 // Função para realizar o login do usuário
 const login = async (data) => {
   const { email, senha } = data;
-  const md5 = require("md5");
+
   const connection = await connect(); // Obtenha uma conexão ao banco de dados
 
   try {
@@ -27,7 +27,7 @@ const login = async (data) => {
       `JOIN pessoa p ON p.id_pessoa=u.pessoa_id_pessoa ` +
       `WHERE p.email = ? AND u.senha = ?`;
 
-    const [results] = await connection.query(sql, [email, md5(senha)]);
+    const [results] = await connection.query(sql, [email, senha]);
 
     let result = null;
     if (results && results.length > 0) {
