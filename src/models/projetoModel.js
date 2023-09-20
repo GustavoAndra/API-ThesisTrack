@@ -32,9 +32,5 @@ async function inserirProjeto(projeto) {
 module.exports = {
   getAllProjetos: (callback) => {
     connection.query('SELECT * FROM projeto', callback);
-  }
-};
-
-module.exports = {
-  inserirProjeto,
+  },  inserirProjeto,
 };
