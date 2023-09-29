@@ -152,7 +152,7 @@ async function atualizarProjeto(projetoId, {
     }
 }
 
-// Função para deletar um projeto por ID
+// Função para deletar um projeto
 async function deletarProjeto(projetoId) {
     const connection = await connect(); // Conecta ao banco de dados
     await connection.beginTransaction(); // Inicia uma transação no banco
