@@ -27,8 +27,6 @@ CREATE TABLE IF NOT EXISTS `infocimol`.`pessoa` (
   PRIMARY KEY (`id_pessoa`),
   UNIQUE INDEX `id_pessoa_UNIQUE` (`id_pessoa` ASC) VISIBLE)
 ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `infocimol`.`usuario`
 -- -----------------------------------------------------
@@ -43,7 +41,6 @@ CREATE TABLE IF NOT EXISTS `infocimol`.`usuario` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `infocimol`.`administrador`
