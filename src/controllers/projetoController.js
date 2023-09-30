@@ -1,5 +1,6 @@
 const projetoModel = require('../models/projetoModel');
 
+//Função de criar o projeto
 async function criarProjeto(req, res) {
     const {
         titulo,
@@ -28,6 +29,7 @@ async function criarProjeto(req, res) {
     }
 }
 
+//Função de listar os projetos
 async function listarProjetos(req, res) {
     const result = await projetoModel.listarProjetos();
 
@@ -38,6 +40,7 @@ async function listarProjetos(req, res) {
     }
 }
 
+//Função de listar os projetos por id
 async function listarProjetoPorId(req, res) {
     const projetoId = req.params.id;
 
@@ -50,6 +53,7 @@ async function listarProjetoPorId(req, res) {
     }
 }
 
+//Função de atualizar os projetos
 async function atualizarProjeto(req, res) {
     const projetoId = req.params.id;
     const {
@@ -79,6 +83,7 @@ async function atualizarProjeto(req, res) {
     }
 }
 
+//Função de deletar os projetos
 async function deletarProjeto(req, res) {
     const projetoId = req.params.id;
 
@@ -91,6 +96,7 @@ async function deletarProjeto(req, res) {
     }
 }
 
+//Exports das funções
 module.exports = {
     criarProjeto,
     listarProjetos,
