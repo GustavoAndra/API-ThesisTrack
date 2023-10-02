@@ -4,6 +4,6 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 
 // Rota para listar os professores orientadores dos projetos (protegida por autenticação JWT)
-router.get(`/lista/orientador`, authMiddleware.verifyToken, professorController.listarTodosProfessores);
+router.get(`/listar/orientador`, authMiddleware.verifyToken, professorController.listarTodosProfessores);
 
 module.exports = router;

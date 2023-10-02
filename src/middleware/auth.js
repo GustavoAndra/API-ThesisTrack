@@ -26,13 +26,8 @@ module.exports = {
         return res.status(401).json({ auth: false, message: "Usuário não encontrado" });
       }
 
-      // Verifica se o token ainda é válido de acordo com a data de expiração
-      const now = Date.now().valueOf() / 1000;
-      if (decoded.exp < now) {
-        return res.status(401).json({ auth: false, message: "Token expirado" });
-      }
-
       req.userId = decoded.id;
+      
       next();
     } catch (error) {
       console.error("Erro na autenticação:", error);

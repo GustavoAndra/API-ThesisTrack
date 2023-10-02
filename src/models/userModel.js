@@ -1,5 +1,6 @@
-const jwt = require("jsonwebtoken");
 const { connect } = require('./mysqlConnect');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Função para buscar todos os usuários
 const get = async () => {
@@ -22,44 +23,52 @@ const login = async (data) => {
     const sql =
       `SELECT p.id_pessoa as id, p.nome, p.email, ` +
       `(SELECT COUNT(pessoa_id_pessoa) FROM professor WHERE pessoa_id_pessoa=p.id_pessoa) as professor, ` +
-      `(SELECT COUNT(pessoa_id_pessoa) FROM administrador WHERE pessoa_id_pessoa=p.id_pessoa) as admin ` +
+      `(SELECT COUNT(pessoa_id_pessoa) FROM administrador WHERE pessoa_id_pessoa=p.id_pessoa) as admin, ` +
+      `u.senha as senha_hash ` + // Adicione a senha hash à consulta
       `FROM usuario u ` +
       `JOIN pessoa p ON p.id_pessoa=u.pessoa_id_pessoa ` +
-      `WHERE p.email = ? AND u.senha = ?`;
-
-    const [results] = await connection.query(sql, [email, senha]);
+      `WHERE p.email = ?`; // Mantenha a consulta de seleção
+    const [results] = await connection.query(sql, [email]);
 
     let result = null;
     if (results && results.length > 0) {
-      const id = results[0].id;
-      const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION_TIME });
+      const senha_hash = results[0].senha_hash;
 
-      console.log("Fez login e gerou token!");
+      // Use bcrypt para verificar a senha
+      const senhaCorrespondente = await bcrypt.compare(senha, senha_hash);
 
-      const perfil = [];
-      if (results[0].professor > 0) {
-        perfil.push("professor");
+      if (senhaCorrespondente) {
+        const id = results[0].id;
+        const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION_TIME });
+
+        console.log("Fez login e gerou token!");
+
+        const perfil = [];
+        if (results[0].professor > 0) {
+          perfil.push("professor");
+        }
+        if (results[0].admin > 0) {
+          perfil.push("admin");
+        }
+
+        results[0].perfil = perfil;
+
+        // Atualiza o perfil do usuário no banco de dados
+        const updateSql = "UPDATE usuario SET perfil = ? WHERE pessoa_id_pessoa = ?";
+        console.log(updateSql);
+        await connection.query(updateSql, [perfil.toString(), id]);
+
+        result = { auth: true, token, user: results[0] };
+      } else {
+        result = { auth: false, message: "Credenciais inválidas" };
       }
-      if (results[0].admin > 0) {
-        perfil.push("admin");
-      }
-
-      results[0].perfil = perfil;
-
-      // Atualiza o perfil do usuário no banco de dados
-      const updateSql = "UPDATE usuario SET perfil = ? WHERE pessoa_id_pessoa = ?";
-      console.log(updateSql);
-      await connection.query(updateSql, [perfil.toString(), id]);
-
-      result = { auth: true, token, user: results[0] };
     } else {
       result = { auth: false, message: "Credenciais inválidas" };
     }
-
     return result;
   } catch (error) {
     throw error;
-  } 
+  }
 };
 
 // Função para verificar a validade do token JWT
