@@ -80,19 +80,19 @@ async function listarProjetoPorId(projetoId, usuarioId) {
     try {
         // Consulta SQL para buscar um projeto por ID e obter nomes de autores e do orientador
         const [rows] = await connection.query(`
-            SELECT 
+        SELECT 
                 projeto.*,
-                GROUP_CONCAT(DISTINCT autor.nome SEPARATOR ', ') AS autores,
+                GROUP_CONCAT(DISTINCT autor.nome) AS autores,
                 orientador.nome AS orientador
             FROM projeto
             LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
             LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
             LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
             LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-            WHERE projeto.publico = 1
-            GROUP BY projeto.id_projeto;
-        `, [usuarioId, projetoId]);
-
+            WHERE projeto.publico = 1 AND projeto.id_projeto = ?
+            GROUP BY projeto.id_projeto
+        `, [projetoId]);
+       
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
