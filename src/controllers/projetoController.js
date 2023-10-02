@@ -1,6 +1,5 @@
 const projetoModel = require('../models/projetoModel');
 
-//Função de criar o projeto
 async function criarProjeto(req, res) {
     const {
         titulo,
@@ -8,6 +7,7 @@ async function criarProjeto(req, res) {
         delimitacao,
         resumo,
         problema,
+        publico,
         alunos,
         professores
     } = req.body;
@@ -18,8 +18,9 @@ async function criarProjeto(req, res) {
         delimitacao,
         resumo,
         problema,
+        publico,
         alunos,
-        professores
+        professores,
     });
 
     if (result.success) {
@@ -62,6 +63,7 @@ async function atualizarProjeto(req, res) {
         delimitacao,
         resumo,
         problema,
+        publico,
         alunos,
         professores
     } = req.body;
@@ -72,6 +74,7 @@ async function atualizarProjeto(req, res) {
         delimitacao,
         resumo,
         problema,
+        publico,
         alunos,
         professores
     });

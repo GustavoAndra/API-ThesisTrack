@@ -4,16 +4,13 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 
 // Rota para criar um projeto (protegida por autenticação JWT)
-router.post('/projeto/adiciona', authMiddleware.verifyToken, projetoController.criarProjeto);
+router.post('/projeto/adiciona',authMiddleware.verifyToken,  projetoController.criarProjeto);
 
 // Rota para listar todos os projetos (protegida por autenticação JWT)
-router.get('/projeto/listar/',authMiddleware.verifyToken,  projetoController.listarProjetos);
+router.get('/projeto/listar',authMiddleware.verifyToken, projetoController.listarProjetos);
 
 // Rota para listar um projeto por ID (protegida por autenticação JWT)
 router.get('/projeto/listar/:id',authMiddleware.verifyToken,  projetoController.listarProjetoPorId);
-
-// Rota para listar os projeto na tela de visitantes (Ainda em desenvolvimento)
-router.get('/projeto/mostra', projetoController.listarProjetos);
 
 // Rota para atualizar um projeto por ID (protegida por autenticação JWT)
 router.put('/projeto/atualiza/:id',authMiddleware.verifyToken,  projetoController.atualizarProjeto);

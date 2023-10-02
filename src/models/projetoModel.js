@@ -1,4 +1,4 @@
-const { connect } = require('../models/mysqlConnect'); //Puxa a conexão com o banco de dados
+const { connect } = require('../models/mysqlConnect'); // Puxa a conexão com o banco de dados
 
 // Função para criar um projeto
 async function criarProjeto({
@@ -7,6 +7,7 @@ async function criarProjeto({
     delimitacao,
     resumo,
     problema,
+    publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
     professores
 }) {
@@ -15,8 +16,8 @@ async function criarProjeto({
 
     try {
         // Query para inserir um novo projeto
-        const projetoQuery = 'INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema) VALUES (?, ?, ?, ?, ?)';
-        const projetoValues = [titulo, tema, delimitacao, resumo, problema];
+        const projetoQuery = 'INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema, publico) VALUES (?, ?, ?, ?, ?, ?)';
+        const projetoValues = [titulo, tema, delimitacao, resumo, problema, publico]; // Inclue o valor de publico na lista de valores
         const [projetoResult] = await connection.query(projetoQuery, projetoValues);
 
         const projetoId = projetoResult.insertId; // Obtém o ID do projeto recém-inserido
@@ -49,21 +50,22 @@ async function criarProjeto({
 }
 
 // Função para listar todos os projetos
-async function listarProjetos() {
+async function listarProjetos(usuarioId) {
     try {
         const connection = await connect(); // Conecta ao banco de dados
         const [rows] = await connection.query(`
             SELECT 
                 projeto.*,
-                GROUP_CONCAT(DISTINCT autor.nome) AS autores,
+                GROUP_CONCAT(DISTINCT autor.nome SEPARATOR ', ') AS autores,
                 orientador.nome AS orientador
             FROM projeto
             LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
             LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
             LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
             LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-            GROUP BY projeto.id_projeto
-        `); // Executa a query para listar projetos com nomes dos autores e do orientador
+            WHERE projeto.publico = 1
+            GROUP BY projeto.id_projeto;
+        `, [usuarioId]); // Executa a consulta para listar projetos com nomes dos autores e do orientador
 
         return { success: true, data: rows }; // Retorna os projetos encontrados com nomes dos autores e do orientador
     } catch (error) {
@@ -72,27 +74,29 @@ async function listarProjetos() {
     }
 }
 
-async function listarProjetoPorId(projetoId) {
+// Função para listar um projeto por ID
+async function listarProjetoPorId(projetoId, usuarioId) {
     const connection = await connect(); // Conecta ao banco de dados
     try {
         // Consulta SQL para buscar um projeto por ID e obter nomes de autores e do orientador
         const [rows] = await connection.query(`
             SELECT 
                 projeto.*,
-                GROUP_CONCAT(DISTINCT autor.nome) AS autores,
+                GROUP_CONCAT(DISTINCT autor.nome SEPARATOR ', ') AS autores,
                 orientador.nome AS orientador
             FROM projeto
             LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
             LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
             LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
             LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-            WHERE projeto.id_projeto = ?
-            GROUP BY projeto.id_projeto
-        `, [projetoId]);
+            WHERE projeto.publico = 1
+            GROUP BY projeto.id_projeto;
+        `, [usuarioId, projetoId]);
 
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
+
         return { success: true, data: rows[0] }; // Retorna o projeto encontrado com nomes dos autores e do orientador
     } catch (error) {
         console.error(error);
@@ -100,13 +104,14 @@ async function listarProjetoPorId(projetoId) {
     }
 }
 
-// Função para atualizar um projeto por ID
+// Função para atualizar um projeto pelo ID
 async function atualizarProjeto(projetoId, {
     titulo,
     tema,
     delimitacao,
     resumo,
     problema,
+    publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
     professores
 }) {
@@ -115,8 +120,8 @@ async function atualizarProjeto(projetoId, {
 
     try {
         // Query para atualizar um projeto por ID
-        const projetoUpdateQuery = 'UPDATE projeto SET titulo = ?, tema = ?, delimitacao = ?, resumo = ?, problema = ? WHERE id_projeto = ?';
-        const projetoUpdateValues = [titulo, tema, delimitacao, resumo, problema, projetoId];
+        const projetoUpdateQuery = 'UPDATE projeto SET titulo = ?, tema = ?, delimitacao = ?, resumo = ?, problema = ?, publico = ? WHERE id_projeto = ?';
+        const projetoUpdateValues = [titulo, tema, delimitacao, resumo, problema, publico, projetoId];
         await connection.query(projetoUpdateQuery, projetoUpdateValues);
 
         // Verifica se existem alunos associados ao projeto e atualiza no banco

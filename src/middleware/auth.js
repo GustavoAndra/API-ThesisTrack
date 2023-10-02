@@ -29,8 +29,8 @@ module.exports = {
 
       // Verifique a expiração do token usando a variável de ambiente
       const currentDatetime = new Date();
-      const tokenExpirationDate = new Date(decoded.exp * 1000);
-      const jwtExpirationTime = parseInt(process.env.JWT_EXPIRATION_TIME) * 1000; 
+      const tokenExpirationDate = new Date(decoded.exp * 28000);
+      const jwtExpirationTime = parseInt(process.env.JWT_EXPIRATION_TIME); 
 
       if (currentDatetime > tokenExpirationDate) {
         return res.status(401).json({ auth: false, message: 'Token expirado' });
