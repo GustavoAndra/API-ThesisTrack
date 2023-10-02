@@ -12,6 +12,8 @@ router.get('/projeto/listar', projetoController.listarProjetos);
 // Rota para listar um projeto por ID (protegida por autenticação JWT)
 router.get('/projeto/listar/:id',  projetoController.listarProjetoPorId);
 
+router.get('/lista/orientador' , projetoController.listarTodosProfessores);
+
 // Rota para atualizar um projeto por ID (protegida por autenticação JWT)
 router.put('/projeto/atualiza/:id',  projetoController.atualizarProjeto);
 

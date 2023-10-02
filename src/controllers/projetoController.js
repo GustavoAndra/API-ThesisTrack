@@ -54,6 +54,20 @@ async function listarProjetoPorId(req, res) {
     }
 }
 
+async function listarTodosProfessores(req, res) {
+    try {
+        const result = await projetoModel.listarProfessores();
+        if (result.success) {
+            res.status(200).json(result.data);
+        } else {
+            res.status(500).json({ error: result.error });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+}
+
 //Função de atualizar os projetos
 async function atualizarProjeto(req, res) {
     const projetoId = req.params.id;
@@ -104,6 +118,7 @@ module.exports = {
     criarProjeto,
     listarProjetos,
     listarProjetoPorId,
+    listarTodosProfessores,
     atualizarProjeto,
     deletarProjeto
 };
