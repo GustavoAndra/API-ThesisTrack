@@ -7,19 +7,16 @@ const authMiddleware = require('../middleware/auth');
 const basePath = '/projeto';
 
 // Rota para criar um projeto (protegida por autenticação JWT)
-router.post(`${basePath}/adiciona`, projetoController.criarProjeto);
+router.post(`${basePath}/adiciona/`, authMiddleware.verifyToken, projetoController.criarProjeto);
 
 // Rota para listar todos os projetos (protegida por autenticação JWT)
-router.get(`${basePath}/listar`, projetoController.listarProjetos);
+router.get(`${basePath}/listar/`, authMiddleware.verifyToken, projetoController.listarProjetos);
 
 // Rota para listar um projeto por ID (protegida por autenticação JWT)
-router.get(`${basePath}/listar/:id`, projetoController.listarProjetoPorId);
-
-// Rota para listar os professores orientadores dos projetos (protegida por autenticação JWT)
-router.get(`/lista/orientador`, projetoController.listarTodosProfessores);
+router.get(`${basePath}/listar/:id`, authMiddleware.verifyToken, projetoController.listarProjetoPorId);
 
 // Rota para atualizar um projeto por ID (protegida por autenticação JWT)
-router.put(`${basePath}/atualiza/:id`, projetoController.atualizarProjeto);
+router.put(`${basePath}/atualiza/:id`, authMiddleware.verifyToken, projetoController.atualizarProjeto);
 
 // Rota para deletar um projeto por ID (protegida por autenticação JWT)
 router.delete(`${basePath}/delete/:id`, authMiddleware.verifyToken, projetoController.deletarProjeto);

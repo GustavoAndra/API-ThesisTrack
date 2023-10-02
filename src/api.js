@@ -12,6 +12,7 @@ app.use(express.json());
 const router = require('./routers/route');
 const userRoute = require("./routers/userRouters");
 const projetoRoute = require('./routers/projetoRouters');
+const professorRoute = require('./routers/professorRouter');
 
 // Rota para manipulação de usuários
 app.use('/user', userRoute); 
@@ -25,5 +26,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(router);
 app.use(userRoute);
 app.use(projetoRoute);
+app.use(professorRoute);
 
 module.exports = app;
