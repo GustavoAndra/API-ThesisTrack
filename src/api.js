@@ -13,7 +13,7 @@ const router = require('./routers/route');
 const userRoute = require("./routers/userRouters");
 const projetoRoute = require('./routers/projetoRouters');
 const professorRoute = require('./routers/professorRouter');
-
+const alunoRouter = require ('./routers/alunoRouter')
 // Rota para manipulação de usuários
 app.use('/user', userRoute); 
 
@@ -27,5 +27,6 @@ app.use(router);
 app.use(userRoute);
 app.use(projetoRoute);
 app.use(professorRoute);
+app.use(alunoRouter);
 
 module.exports = app;
