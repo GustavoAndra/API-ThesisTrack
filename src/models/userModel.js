@@ -39,7 +39,7 @@ const login = async (data) => {
 
       if (senhaCorrespondente) {
         const id = results[0].id;
-        const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION_TIME });
+        const token = jwt.sign({ id }, process.env.JWT_SECRET, {expiresIn: 28800});
 
         console.log("Fez login e gerou token!");
 
