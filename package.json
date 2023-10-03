@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": " nodemon ./bin/server.js",
+    "build": "webpack",
     "swagger-autogen": "node swagger.js"
   },
   "author": "Gustavo",
@@ -24,6 +25,10 @@
     "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.20",
+    "nodemon": "^3.0.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
   }
 }
