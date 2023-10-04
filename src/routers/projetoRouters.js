@@ -7,7 +7,7 @@ const authMiddleware = require('../middleware/auth');
 const basePath = '/projeto';
 
 // Rota para criar um projeto (protegida por autenticação JWT)
-router.post(`${basePath}/adiciona/`, authMiddleware.verifyToken, projetoController.criarProjeto);
+router.post(`${basePath}/adiciona`, authMiddleware.verifyToken, projetoController.criarProjeto);
 
 // Rota para listar todos os projetos (protegida por autenticação JWT)
 router.get(`${basePath}/listar/`, projetoController.listarProjetos);
