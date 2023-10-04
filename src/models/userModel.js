@@ -1,12 +1,13 @@
 const { connect } = require('./mysqlConnect');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const dbQueries = require('../models/dbQuery'); 
 
 // Função para buscar todos os usuários
 const get = async () => {
   const connection = await connect(); // Obtenha uma conexão ao banco de dados
   try {
-    const [rows] = await connection.query("SELECT *, (SELECT nome FROM pessoa WHERE id=u.pessoa_id_pessoa) as nome FROM usuario u");
+    const [rows] = await connection.query(dbQueries.SELECT_ALL_USER);
     return rows;
   } catch (error) {
     throw error;
@@ -20,14 +21,8 @@ const login = async (data) => {
   const connection = await connect(); // Obtenha uma conexão ao banco de dados
 
   try {
-    const sql =
-      `SELECT p.id_pessoa as id, p.nome, p.email, ` +
-      `(SELECT COUNT(pessoa_id_pessoa) FROM professor WHERE pessoa_id_pessoa=p.id_pessoa) as professor, ` +
-      `(SELECT COUNT(pessoa_id_pessoa) FROM administrador WHERE pessoa_id_pessoa=p.id_pessoa) as admin, ` +
-      `u.senha as senha_hash ` + // Adicione a senha hash à consulta
-      `FROM usuario u ` +
-      `JOIN pessoa p ON p.id_pessoa=u.pessoa_id_pessoa ` +
-      `WHERE p.email = ?`; // Mantenha a consulta de seleção
+    const sql = dbQueries.SELECT_USER
+    
     const [results] = await connection.query(sql, [email]);
 
     let result = null;
@@ -53,8 +48,8 @@ const login = async (data) => {
 
         results[0].perfil = perfil;
 
-        // Atualiza o perfil do usuário no banco de dados
-        const updateSql = "UPDATE usuario SET perfil = ? WHERE pessoa_id_pessoa = ?";
+        // Atualiza o perfil do usuário no banco de dados;
+        const updateSql = dbQueries.UPDATE_USER_PERFIL;
         console.log(updateSql);
         await connection.query(updateSql, [perfil.toString(), id]);
 
@@ -77,7 +72,7 @@ const verifyJWT = async (token, perfil) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const connection = await connect(); // Obtenha uma conexão ao banco de dados
 
-    const sql = "SELECT perfil FROM usuario WHERE pessoa_id_pessoa = ?";
+    const sql = dbQueries.UPDATE_USER
     const [results] = await connection.query(sql, [decoded.id]);
 
     if (results.length > 0) {

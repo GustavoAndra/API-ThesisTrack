@@ -1,29 +1,42 @@
 const userModel = require("../models/userModel");
 
+// Função para buscar usuários (talvez essa função precise ser mais específica)
 exports.get = async (headers) => {
-  let auth;
-  if (headers['perfil'] !== "admin") {
-    return { status: "null", msg: "Operação não permitida", auth };
-  }
-  auth = await userModel.verifyJWT(headers['x-access-token'], headers['perfil']);
-  let users;
-  if (auth.idUser) {
-    if (headers.iduser == auth.idUser) {
-      users = await userModel.get();
-      return users;
-    } else {
-      return { status: "null", auth };
+  try {
+    if (headers['perfil'] !== "admin") {
+      return { status: "null", msg: "Operação não permitida" };
     }
-  } else {
-    return { status: "null", auth };
+
+    const authenticationResult = await userModel.verifyJWT(headers['x-access-token'], headers['perfil']);
+
+    if (!authenticationResult.idUser) {
+      return { status: "null", auth: authenticationResult };
+    }
+
+    if (headers.iduser != authenticationResult.idUser) {
+      return { status: "null", auth: authenticationResult };
+    }
+
+    const users = await userModel.get();
+    return users;
+  } catch (error) {
+    console.error(error);
+    return { status: "error", message: 'Erro ao buscar usuários' };
   }
 };
 
+// Função para fazer login de usuário
 exports.login = async (body) => {
-  const result = await userModel.login(body);
-  if (result.auth) {
-    return { auth: true, token: result.token, user: result.user };
-  } else {
-    return { auth: false, message: 'Credenciais inválidas' };
+  try {
+    const result = await userModel.login(body);
+
+    if (result.auth) {
+      return { auth: true, token: result.token, user: result.user };
+    } else {
+      return { auth: false, message: 'Credenciais inválidas' };
+    }
+  } catch (error) {
+    console.error(error);
+    return { auth: false, message: 'Erro ao fazer login' };
   }
 };

@@ -1,124 +1,93 @@
 const projetoModel = require('../models/projetoModel');
 
+function handleResponse(res, result) {
+  if (result.success) {
+    res.status(200).json(result.data || { message: result.message });
+  } else {
+    res.status(result.statusCode || 500).json({ error: result.error || result.message });
+  }
+}
+
 async function criarProjeto(req, res) {
-    const {
-        titulo,
-        tema,
-        delimitacao,
-        resumo,
-        problema,
-        publico,
-        alunos,
-        professores
-    } = req.body;
+  const {
+    titulo,
+    tema,
+    delimitacao,
+    resumo,
+    problema,
+    publico,
+    alunos,
+    professores
+  } = req.body;
 
-    const result = await projetoModel.criarProjeto({
-        titulo,
-        tema,
-        delimitacao,
-        resumo,
-        problema,
-        publico,
-        alunos,
-        professores,
-    });
+  const result = await projetoModel.criarProjeto({
+    titulo,
+    tema,
+    delimitacao,
+    resumo,
+    problema,
+    publico,
+    alunos,
+    professores,
+  });
 
-    if (result.success) {
-        return res.status(201).json({ message: result.message });
-    } else {
-        return res.status(500).json({ message: result.message });
-    }
+  handleResponse(res, result);
 }
 
-//Função de listar os projetos
 async function listarProjetos(req, res) {
-    const result = await projetoModel.listarProjetos();
-
-    if (result.success) {
-        return res.json(result.data);
-    } else {
-        return res.status(500).json({ error: result.error });
-    }
+  const result = await projetoModel.listarProjetos();
+  handleResponse(res, result);
 }
 
-//Função de listar os projetos por id
 async function listarProjetoPorId(req, res) {
-    const projetoId = req.params.id;
-
-    const result = await projetoModel.listarProjetoPorId(projetoId);
-
-    if (result.success) {
-        return res.json(result.data);
-    } else {
-        return res.status(404).json({ message: result.message });
-    }
+  const projetoId = req.params.id;
+  const result = await projetoModel.listarProjetoPorId(projetoId);
+  handleResponse(res, result);
 }
 
 async function listarTodosProfessores(req, res) {
-    try {
-        const result = await projetoModel.listarProfessores();
-        if (result.success) {
-            res.status(200).json(result.data);
-        } else {
-            res.status(500).json({ error: result.error });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
+  const result = await projetoModel.listarProfessores();
+  handleResponse(res, result);
 }
 
-//Função de atualizar os projetos
 async function atualizarProjeto(req, res) {
-    const projetoId = req.params.id;
-    const {
-        titulo,
-        tema,
-        delimitacao,
-        resumo,
-        problema,
-        publico,
-        alunos,
-        professores
-    } = req.body;
+  const projetoId = req.params.id;
+  const {
+    titulo,
+    tema,
+    delimitacao,
+    resumo,
+    problema,
+    publico,
+    alunos,
+    professores
+  } = req.body;
 
-    const result = await projetoModel.atualizarProjeto(projetoId, {
-        titulo,
-        tema,
-        delimitacao,
-        resumo,
-        problema,
-        publico,
-        alunos,
-        professores
-    });
+  const result = await projetoModel.atualizarProjeto(projetoId, {
+    titulo,
+    tema,
+    delimitacao,
+    resumo,
+    problema,
+    publico,
+    alunos,
+    professores
+  });
 
-    if (result.success) {
-        return res.status(200).json({ message: result.message });
-    } else {
-        return res.status(500).json({ message: result.message });
-    }
+  handleResponse(res, result);
 }
 
-//Função de deletar os projetos
 async function deletarProjeto(req, res) {
-    const projetoId = req.params.id;
-
-    const result = await projetoModel.deletarProjeto(projetoId);
-
-    if (result.success) {
-        return res.status(200).json({ message: result.message });
-    } else {
-        return res.status(500).json({ message: result.message });
-    }
+  const projetoId = req.params.id;
+  const result = await projetoModel.deletarProjeto(projetoId);
+  handleResponse(res, result);
 }
 
-//Exports das funções
 module.exports = {
-    criarProjeto,
-    listarProjetos,
-    listarProjetoPorId,
-    listarTodosProfessores,
-    atualizarProjeto,
-    deletarProjeto
+  criarProjeto,
+  listarProjetos,
+  listarProjetoPorId,
+  listarTodosProfessores,
+  atualizarProjeto,
+  deletarProjeto
 };

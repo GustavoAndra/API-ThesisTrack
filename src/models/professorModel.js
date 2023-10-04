@@ -1,16 +1,10 @@
 const { connect } = require('../models/mysqlConnect');
-
+const dbQueries = require('../models/dbQuery');
 // Função para listar todos os professores
 async function listarProfessores() {
     try {
         const connection = await connect(); // Conecta ao banco de dados
-        const [rows] = await connection.query(`
-            SELECT
-                professor.pessoa_id_pessoa,
-                pessoa.nome AS nome_professor
-            FROM professor
-            INNER JOIN pessoa ON professor.pessoa_id_pessoa = pessoa.id_pessoa;
-        `);
+        const [rows] = await connection.query(dbQueries.SELECT_PROFESSOR);
 
         return { success: true, data: rows }; // Retorna a lista de professores com IDs e nomes
     } catch (error) {

@@ -14,7 +14,4 @@ async function listarTodosProfessores(req, res) {
     }
 }
 
-//Exports das funções
-module.exports = {
-    listarTodosProfessores,
-};
+module.exports = {listarTodosProfessores};

@@ -13,5 +13,4 @@ async function listarTodosAlunos(req, res) {
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 }
-//Exports das funções
 module.exports = {listarTodosAlunos};
