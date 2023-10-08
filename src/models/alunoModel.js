@@ -1,5 +1,5 @@
 const { connect } = require('../models/mysqlConnect');
-const dbQueries = require('../models/dbQuery');
+const dbQueries = require('../models/dbQuery/dbQuery');
 
 // Função para listar todos os alunos
 async function listarAlunos() {

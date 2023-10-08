@@ -1,5 +1,5 @@
 const { connect } = require('../models/mysqlConnect'); // Puxa a conexão com o banco de dados
-const dbQueries = require('../models/dbQuery');
+const dbQueries = require('../models/dbQuery/dbQuery');
 
 // Função para criar um projeto
 async function criarProjeto({

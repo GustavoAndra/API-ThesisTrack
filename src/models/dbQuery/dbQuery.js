@@ -20,7 +20,6 @@ module.exports = {
   UPDATE_USER_PERFIL: 'UPDATE usuario SET perfil = ? WHERE pessoa_id_pessoa = ?',
   /* ------------------------USER Model (Final) ----------------------*/
 
-
   /* ------------------------Projeto Model (Inicio) ----------------------*/
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: 'INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema, publico) \

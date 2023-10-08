@@ -1,7 +1,7 @@
 const { connect } = require('./mysqlConnect');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const dbQueries = require('../models/dbQuery'); 
+const dbQueries = require('../models/dbQuery/dbQuery'); 
 
 // Função para buscar todos os usuários
 const get = async () => {
