@@ -1,10 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const swaggerUi = require('swagger-ui-express')
-const swaggerFile = require('../swagger.json')
 const cors = require('cors');
 const app = express();
-
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -19,9 +16,6 @@ app.use('/user', userRoute);
 
 // Rota para autenticação de usuários
 app.use('/login', userRoute);
-
-//Rota da Documentação do projeto
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 app.use(router);
 app.use(userRoute);
