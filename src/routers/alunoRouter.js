@@ -6,4 +6,7 @@ const authMiddleware = require('../middleware/auth');
 // Rota para listar os alunos(protegida por autenticação JWT)
 router.get(`/listar/alunos`, authMiddleware.verifyToken, alunoController.listarTodosAlunos);
 
+// Rota para listar os alunos associados ao projeto(protegida por autenticação JWT)
+router.get(`/aluno/projetos/:id`, authMiddleware.verifyToken, alunoController.listarProjetosDeAluno);
+
 module.exports = router;

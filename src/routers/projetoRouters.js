@@ -9,10 +9,10 @@ const basePath = '/projeto';
 // Rota para criar um projeto (protegida por autenticação JWT)
 router.post(`${basePath}/adiciona`, authMiddleware.verifyToken, projetoController.criarProjeto);
 
-// Rota para listar todos os projetos (protegida por autenticação JWT)
+// Rota para listar todos os projetos
 router.get(`${basePath}/listar/`, projetoController.listarProjetos);
 
-// Rota para listar um projeto por ID (protegida por autenticação JWT)
+// Rota para listar um projeto por ID
 router.get(`${basePath}/listar/:id`, projetoController.listarProjetoPorId);
 
 // Rota para atualizar um projeto por ID (protegida por autenticação JWT)

@@ -14,4 +14,22 @@ async function listarTodosProfessores(req, res) {
     }
 }
 
-module.exports = {listarTodosProfessores};
+//listar os projetos associados a um professor com base no ID do professor
+async function listarProjetosDoProfessor(req, res) {
+    const professorId = req.params.id; // Assume que o ID do professor está nos parâmetros da URL
+
+    try {
+        const result = await professorModel.listarProjetosDoProfessor(professorId);
+
+        if (result.success) {
+            res.json(result.data);
+        } else {
+            res.status(500).json({ error: result.error });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao buscar projetos do professor' });
+    }
+}
+
+module.exports = {listarTodosProfessores, listarProjetosDoProfessor};

@@ -9,7 +9,7 @@ module.exports = {
     FROM usuario u
     JOIN pessoa p ON p.id_pessoa=u.pessoa_id_pessoa
     WHERE p.email = ?`,
-  
+
   // Consulta para selecionar todos os usuários
   SELECT_ALL_USER: "SELECT *, (SELECT nome FROM pessoa WHERE id=u.pessoa_id_pessoa) as nome FROM usuario u",
 
@@ -45,7 +45,7 @@ module.exports = {
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
     WHERE projeto.publico = 1
     GROUP BY projeto.id_projeto; `,
-  
+
   // Consulta para selecionar um projeto por ID com nomes dos autores e orientador
   SELECT_PROJETO_POR_ID: `
     SELECT 
@@ -59,7 +59,7 @@ module.exports = {
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
     WHERE projeto.publico = 1 AND projeto.id_projeto = ?
     GROUP BY projeto.id_projeto; `,
-  
+
   // Consulta para verificar se um projeto com determinado ID existe
   VERIFICA_PROJETO: 'SELECT 1 FROM projeto WHERE id_projeto = ?',
 
@@ -80,11 +80,24 @@ module.exports = {
 
   /* ------------------------Professor Model (Inicio) ----------------------*/
 
-  //Consulta para listar os professores orientadores
+  // Consulta para listar os professores orientadores
   SELECT_PROFESSOR: 'SELECT professor.pessoa_id_pessoa, pessoa.nome AS nome_professor \
   FROM professor INNER JOIN pessoa ON professor.pessoa_id_pessoa = pessoa.id_pessoa',
-  /* ------------------------Professor Model (Final) ----------------------*/
 
+  // Consulta para listar os professores orientadores de um projeto por id
+  SELECT_PROFESSOR_ORIENTADOR_ID: `
+  SELECT 
+  projeto.*,
+  GROUP_CONCAT(DISTINCT aluno.nome SEPARATOR ', ') AS alunos,
+  GROUP_CONCAT(DISTINCT professor.nome SEPARATOR ', ') AS orientadores
+FROM projeto
+LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
+WHERE orientacao.professor_pessoa_id_pessoa = ?
+GROUP BY projeto.id_projeto;`,
+  /* ------------------------Professor Model (Final) ----------------------*/
 
   /* ------------------------Aluno Model (Inicio) ----------------------*/
   
@@ -93,5 +106,20 @@ module.exports = {
   SELECT aluno.pessoa_id_pessoa, pessoa.nome AS nome_aluno, 
   aluno.matricula AS matricula_aluno FROM aluno
   INNER JOIN pessoa ON aluno.pessoa_id_pessoa = pessoa.id_pessoa; `,
+
+  // Lista os projetos que os alunos estão associados por id
+  SELECT_ALUNO_PROJETO_ID: `SELECT 
+  projeto.*,
+  GROUP_CONCAT(DISTINCT aluno.nome SEPARATOR ', ') AS alunos,
+  GROUP_CONCAT(DISTINCT orientador.nome SEPARATOR ', ') AS orientadores
+FROM projeto
+LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+WHERE projeto.id_projeto IN (
+  SELECT projeto_id_projeto FROM aluno_projeto WHERE aluno_pessoa_id_pessoa = ?
+)
+GROUP BY projeto.id_projeto;`
   /* ------------------------Aluno Model (Final) ----------------------*/
 };

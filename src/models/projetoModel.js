@@ -60,7 +60,7 @@ async function listarProjetos(usuarioId) {
 }
 
 // Função para listar um projeto por ID
-async function listarProjetoPorId(projetoId, usuarioId) {
+async function listarProjetoPorId(projetoId) {
     const connection = await connect(); // Conecta ao banco de dados
     try {
         const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID, [projetoId]);

@@ -12,5 +12,22 @@ async function listarTodosAlunos(req, res) {
         console.error(error);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
+
+}//listar projetos de um aluno
+async function listarProjetosDeAluno(req, res) {
+    const alunoId = req.params.id;
+
+    try {
+        const result = await alunoModel.listarProjetosDeAluno(alunoId);
+        if (result.success) {
+            res.json(result.data);
+        } else {
+            res.status(500).json({ error: result.error });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao buscar projetos do aluno' });
+    }
 }
-module.exports = {listarTodosAlunos};
+
+module.exports = {listarTodosAlunos, listarProjetosDeAluno};
