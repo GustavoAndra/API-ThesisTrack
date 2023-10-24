@@ -1,5 +1,5 @@
 module.exports = {
-  /* ------------------------USER Model (Inicio) ----------------------*/
+/* ------------------------USER Model (Inicio) ----------------------*/
   // Consulta para selecionar um usuário por email
   SELECT_USER: `
     SELECT p.id_pessoa as id, p.nome, p.email,

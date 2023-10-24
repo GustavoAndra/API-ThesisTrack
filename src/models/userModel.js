@@ -90,4 +90,4 @@ const verifyJWT = async (token, perfil) => {
   }
 };
 
-module.exports = { get, login, verifyJWT };
+module.exports = { get, login, verifyJWT};

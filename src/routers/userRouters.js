@@ -5,7 +5,6 @@ const userController = require('../controllers/userController');
 userRouter.post('/', async (req, res, next) => {
   let user = await userController.get(req.headers);
   res.status(200).send(user);
-  
 });
 
 userRouter.post('/login' , async (req, res, next) => {
