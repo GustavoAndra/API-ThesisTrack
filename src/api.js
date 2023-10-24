@@ -11,6 +11,7 @@ const userRoute = require("./routers/userRouters");
 const projetoRoute = require('./routers/projetoRouters');
 const professorRoute = require('./routers/professorRouter');
 const alunoRouter = require ('./routers/alunoRouter');
+const cursoRouter = require ('./routers/cursoRouter');
 // Rota para manipulação de usuários
 app.use('/user', userRoute); 
 
@@ -22,5 +23,6 @@ app.use(userRoute);
 app.use(projetoRoute);
 app.use(professorRoute);
 app.use(alunoRouter);
+app.use(cursoRouter);
 
 module.exports = app;
