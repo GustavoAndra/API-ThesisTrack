@@ -1,7 +1,9 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
+
+require('dotenv').config();
+
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -12,6 +14,7 @@ const projetoRoute = require('./routers/projetoRouters');
 const professorRoute = require('./routers/professorRouter');
 const alunoRouter = require ('./routers/alunoRouter');
 const cursoRouter = require ('./routers/cursoRouter');
+
 // Rota para manipulação de usuários
 app.use('/user', userRoute); 
 

@@ -6,9 +6,6 @@ async function listaCurso() {
 
     const sql = "SELECT nome FROM curso"; // Lista só o nome dos cursos
     const [rows] = await connection.execute(sql);
-
-    connection.end();
-
     const nomesDosCursos = rows.map(row => row.nome);
 
     return { success: true, data: nomesDosCursos };

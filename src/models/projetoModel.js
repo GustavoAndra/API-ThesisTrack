@@ -1,4 +1,4 @@
-const { connect } = require('../models/mysqlConnect'); // Puxa a conexão com o banco de dados
+const { connect } = require('../models/mysqlConnect'); 
 const dbQueries = require('../models/dbQuery/dbQuery');
 
 // Função para criar um projeto
@@ -20,6 +20,10 @@ async function criarProjeto({
         const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, delimitacao, resumo, problema, publico]);
 
         const projetoId = projetoResult.insertId; // Obtém o ID do projeto recém-inserido
+
+        // Converte alunos e professores de strings JSON para objetos
+        alunos = JSON.parse(alunos);
+        professores = JSON.parse(professores);
 
         // Verifica se existem alunos associados ao projeto e insere no banco
         if (alunos && alunos.length > 0) {
@@ -98,6 +102,10 @@ async function atualizarProjeto(projetoId, {
         if (projetoExists.length === 0) {
             throw new Error('Projeto não encontrado');
         }
+
+        // Converte alunos e professores de strings JSON para objetos
+        alunos = JSON.parse(alunos);
+        professores = JSON.parse(professores);
 
         // Query para atualizar um projeto por ID
         await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, delimitacao, resumo, problema, publico, projetoId]);
