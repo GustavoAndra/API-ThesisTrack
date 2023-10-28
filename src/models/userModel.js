@@ -92,13 +92,28 @@ const verifyJWT = async (token, perfil) => {
   }
 };
 
-// Variável global para armazenar o código de verificação
-let globalVerificationCode = null;
+// Variável global para armazenar o código de verificação e o horário de criação
+let globalVerificationData = { code: null, timestamp: null };
+const verificationCodeValidityMinutes = 15; // Tempo de validade em minutos
+
+// Variável global para rastrear se o código já foi usado
+let isVerificationCodeUsed = false;
 
 // Função para enviar o e-mail com um código de verificação aleatório
 const sendVerificationCode = async (email) => {
+  // Verifica se o código já foi usado anteriormente
+  if (isVerificationCodeUsed) {
+    return Promise.reject(new Error("O código de verificação já foi usado."));
+  }
+
   // Gere um código de verificação aleatório
-  globalVerificationCode = generateVerificationCode();
+  const verificationCode = generateVerificationCode();
+
+  // Armazene o código de verificação e o horário de criação
+  globalVerificationData = {
+    code: verificationCode,
+    timestamp: new Date(),
+  };
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -111,7 +126,7 @@ const sendVerificationCode = async (email) => {
     from: process.env.EMAIL,
     to: email,
     subject: "Código de verificação",
-    text: `Seu código de verificação é ${globalVerificationCode}. Use-o para alterar sua senha.`,
+    text: `Seu código de verificação é ${verificationCode}. Use-o para alterar sua senha. Este código é válido por ${verificationCodeValidityMinutes} minutos.`,
   };
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, (error, info) => {
@@ -120,7 +135,7 @@ const sendVerificationCode = async (email) => {
         reject(error);
       } else {
         console.log("E-mail enviado: " + info.response);
-        resolve(globalVerificationCode);
+        resolve(verificationCode);
       }
     });
   });
@@ -138,6 +153,18 @@ const generateVerificationCode = () => {
   }
 
   return code;
+};
+
+// Função para verificar se o código de verificação ainda é válido
+const isVerificationCodeValid = () => {
+  if (!globalVerificationData.code || !globalVerificationData.timestamp) {
+    return false;
+  }
+
+  const currentTime = new Date();
+  const timeDifference = (currentTime - globalVerificationData.timestamp) / (1000 * 60);
+
+  return timeDifference <= verificationCodeValidityMinutes && !isVerificationCodeUsed;
 };
 
 // Função para atualizar a senha do usuário com código de verificação
@@ -158,8 +185,8 @@ const updatePassword = async (data) => {
 
     const pessoaId = pessoaResults[0].id_pessoa;
 
-    // Compare o código inserido pelo usuário com o código gerado anteriormente
-    if (codigo !== globalVerificationCode) {
+    // Verifica se o código de verificação ainda é válido e não foi usado
+    if (!isVerificationCodeValid() || codigo !== globalVerificationData.code) {
       throw new Error("Código de verificação inválido.");
     }
 
@@ -168,6 +195,9 @@ const updatePassword = async (data) => {
     }
 
     const hashedPassword = await bcrypt.hash(novaSenha, 10);
+
+    // Marca o código de verificação como usado
+    isVerificationCodeUsed = true;
 
     // Atualiza a senha do usuário na tabela "usuario"
     await connection.query(
@@ -185,4 +215,4 @@ const updatePassword = async (data) => {
   }
 };
 
-module.exports = { get, login, verifyJWT, sendVerificationCode, updatePassword };
+module.exports = {get, login, verifyJWT, sendVerificationCode, updatePassword};
