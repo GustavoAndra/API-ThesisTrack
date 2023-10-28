@@ -9,4 +9,7 @@ router.get(`/listar/orientador`, authMiddleware.verifyToken, professorController
 // Rota para listar os professores orientadores dos projetos (protegida por autenticação JWT)
 router.get(`/projeto/orientador/:id`, authMiddleware.verifyToken, professorController.listarProjetosDoProfessor);
 
+// Rota para cadastrar um novo professor
+router.post(`/adiciona/orientador/`, professorController.cadastrarNovoProfessor);
+
 module.exports = router;

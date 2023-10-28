@@ -2,7 +2,7 @@ const cursoModel = require('../models/cursoModel');
 
 async function listarCurso(req, res) {
   try {
-    const result = await cursoModel.listaCurso();
+    const result = await cursoModel.listarCursos();
     if (result.success) {
       res.status(200).json(result.data);
     } else {

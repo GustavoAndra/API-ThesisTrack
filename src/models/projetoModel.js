@@ -99,10 +99,6 @@ async function atualizarProjeto(projetoId, {
             throw new Error('Projeto não encontrado');
         }
 
-        // Converte alunos e professores de strings JSON para objetos
-        alunos = JSON.parse(alunos);
-        professores = JSON.parse(professores);
-
         // Query para atualizar um projeto por ID
         await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, delimitacao, resumo, problema, publico, projetoId]);
 

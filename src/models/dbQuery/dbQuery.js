@@ -126,6 +126,17 @@ GROUP BY projeto.id_projeto;`,
     WHERE projeto.id_projeto IN (
       SELECT projeto_id_projeto FROM aluno_projeto WHERE aluno_pessoa_id_pessoa = ?
     )
-    GROUP BY projeto.id_projeto;`
+    GROUP BY projeto.id_projeto;`,
   /* ------------------------Aluno Model (Final) ---------------------- */
+
+ /*-------------------------Curso Model (Inicio) -----------------*/
+ SELECT_CURSOS: ` SELECT nome FROM curso;`,
+ /*-------------------------Curso Model (Final) -----------------*/
+
+
+
+
+
+
+
 };
