@@ -9,7 +9,7 @@ router.get(`/listar/alunos`, authMiddleware.verifyToken, alunoController.listarT
 // Rota para listar os alunos associados ao projeto (protegida por autenticação JWT)
 router.get(`/aluno/projetos/:id`, authMiddleware.verifyToken, alunoController.listarProjetosDeAluno);
 
-// Rota para adicionar os alunos associados ao projeto (protegida por autenticação JWT)
-router.post(`/adiciona/aluno/`, authMiddleware.verifyToken, alunoController.cadastrarAlunoController);
+// Rota para adicionar os alunos associados ao projeto 
+router.post(`/adiciona/aluno/`,  alunoController.cadastrarAlunoController);
 
 module.exports = router;

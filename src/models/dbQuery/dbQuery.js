@@ -38,15 +38,7 @@ module.exports = {
   // Consulta para selecionar todos os projetos com nomes dos autores e orientadores
   SELECT_PROJETOS: `
   SELECT 
-  projeto.id_projeto,
-  projeto.titulo,
-  projeto.resumo,
-  projeto.abstract,
-  projeto.problema,
-  projeto.tema,
-  projeto.delimitacao,
-  projeto.arquivo,
-  projeto.publico,
+  projeto.*,
   JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
   JSON_ARRAYAGG(JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
 FROM projeto
