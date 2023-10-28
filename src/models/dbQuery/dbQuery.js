@@ -22,6 +22,7 @@ module.exports = {
   /* ------------------------USER Model (Final) ---------------------- */
 
   /* ------------------------Projeto Model (Inicio) ---------------------- */
+ 
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
     INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema, publico)

@@ -21,10 +21,6 @@ async function criarProjeto({
 
         const projetoId = projetoResult.insertId; // Obtém o ID do projeto recém-inserido
 
-        // Converte alunos e professores de strings JSON para objetos
-        alunos = JSON.parse(alunos);
-        professores = JSON.parse(professores);
-
         // Verifica se existem alunos associados ao projeto e insere no banco
         if (alunos && alunos.length > 0) {
             for (const aluno of alunos) {

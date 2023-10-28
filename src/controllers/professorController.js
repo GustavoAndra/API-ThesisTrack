@@ -16,7 +16,7 @@ async function listarTodosProfessores(req, res) {
 
 //listar os projetos associados a um professor com base no ID do professor
 async function listarProjetosDoProfessor(req, res) {
-    const professorId = req.params.id; // Assume que o ID do professor está nos parâmetros da URL
+    const professorId = req.params.id; 
 
     try {
         const result = await professorModel.listarProjetosDoProfessor(professorId);

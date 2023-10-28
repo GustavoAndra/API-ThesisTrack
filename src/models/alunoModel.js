@@ -32,6 +32,7 @@ async function listarProjetosDeAluno(alunoId) {
     }
 }
 
+//Cadastra os alunos
 const cadastrarAluno = async (data, cursoId, matricula) => {
   const { nome, email, senha } = data;
   const connection = await connect(); 

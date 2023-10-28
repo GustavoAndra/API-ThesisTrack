@@ -1,5 +1,6 @@
 const alunoModel = require('../models/alunoModel');
 
+//Função para listar os alunos
 async function listarTodosAlunos(req, res) {
     try {
         const result = await alunoModel.listarAlunos();
@@ -13,7 +14,9 @@ async function listarTodosAlunos(req, res) {
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 
-}//listar projetos de um aluno
+}
+
+//listar projetos de um aluno
 async function listarProjetosDeAluno(req, res) {
     const alunoId = req.params.id;
 
@@ -30,6 +33,7 @@ async function listarProjetosDeAluno(req, res) {
     }
 }
 
+//Cadastrar um aluno
 const cadastrarAlunoController = async (req, res) => {
     try {
       // Obtenha os dados do corpo da solicitação
@@ -47,6 +51,6 @@ const cadastrarAlunoController = async (req, res) => {
       console.error(error);
       res.status(500).json({ message: 'Erro ao cadastrar aluno' });
     }
-  };
+};
 
 module.exports = {listarTodosAlunos, listarProjetosDeAluno, cadastrarAlunoController};
