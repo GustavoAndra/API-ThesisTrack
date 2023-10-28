@@ -1,42 +1,64 @@
 const userModel = require("../models/userModel");
 
-// Função para buscar usuários (talvez essa função precise ser mais específica)
+//Função para obter o usuário
 exports.get = async (headers) => {
-  try {
-    if (headers['perfil'] !== "admin") {
-      return { status: "null", msg: "Operação não permitida" };
+  let auth;
+  auth = await userModel.verifyJWT(
+    headers["x-access-token"],
+    headers["perfil"]
+  );
+  let users;
+  if (auth.idUser) {
+    if (headers.iduser == auth.idUser) {
+      users = await userModel.get();
+      return users;
+    } else {
+      return { status: "null", auth };
     }
-
-    const authenticationResult = await userModel.verifyJWT(headers['x-access-token'], headers['perfil']);
-
-    if (!authenticationResult.idUser) {
-      return { status: "null", auth: authenticationResult };
-    }
-
-    if (headers.iduser != authenticationResult.idUser) {
-      return { status: "null", auth: authenticationResult };
-    }
-
-    const users = await userModel.get();
-    return users;
-  } catch (error) {
-    console.error(error);
-    return { status: "error", message: 'Erro ao buscar usuários' };
+  } else {
+    return { status: "null", auth };
   }
 };
 
-// Função para fazer login de usuário
+//Função para realizar o login do usuário
 exports.login = async (body) => {
-  try {
-    const result = await userModel.login(body);
+  const result = await userModel.login(body);
+  if (result.auth) {
+    return { auth: true, token: result.token, user: result.user };
+  } else {
+    return { auth: false, message: "Credenciais inválidas" };
+  }
+};
 
-    if (result.auth) {
-      return { auth: true, token: result.token, user: result.user };
-    } else {
-      return { auth: false, message: 'Credenciais inválidas' };
-    }
+//Função para trocar a senha do usuário
+exports.sendVerificationCode = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const codigo = await userModel.sendVerificationCode(email);
+    res.status(200).json({ codigo });
   } catch (error) {
-    console.error(error);
-    return { auth: false, message: 'Erro ao fazer login' };
+    console.log(error);
+    res.status(500).json({ message: "Erro ao enviar código de verificação." });
+  }
+};
+
+// Controller para trocar a senha do usuário com código de verificação
+exports.updatePassword = async (req, res) => {
+  const { email, novaSenha, confirmSenha, codigo } = req.body;
+
+  try {
+    // Chame a função do modelo para atualizar a senha
+    const result = await userModel.updatePassword({
+      email,
+      novaSenha,
+      confirmSenha,
+      codigo,
+    });
+
+    // Retorne uma resposta de sucesso
+    res.status(200).json(result);
+  } catch (error) {
+    // Em caso de erro, retorne uma resposta de erro
+    res.status(500).json({ error: error.message });
   }
 };

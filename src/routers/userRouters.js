@@ -12,4 +12,14 @@ userRouter.post('/login' , async (req, res, next) => {
   res.status(200).send(users);
 });
 
+// Função para enviar o e-mail com o código de verificação
+userRouter.post("/reset-password/request", async (req, res, next) => {
+  await userController.sendVerificationCode(req, res);
+});
+
+// Função para trocar a senha do usuário
+userRouter.put("/user/reset/senha", async (req, res, next) => {
+  await userController.updatePassword(req, res);
+});
+
 module.exports = userRouter;

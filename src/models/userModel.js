@@ -1,11 +1,13 @@
-const { connect } = require('./mysqlConnect');
+const dbQueries = require('../models/dbQuery/dbQuery');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const dbQueries = require('../models/dbQuery/dbQuery'); 
+const nodemailer = require("nodemailer");
+const {connect} = require('./mysqlConnect');
+
 
 // Função para buscar todos os usuários
 const get = async () => {
-  const connection = await connect(); // Obtenha uma conexão ao banco de dados
+  const connection = await connect(); 
   try {
     const [rows] = await connection.query(dbQueries.SELECT_ALL_USER);
     return rows;
@@ -18,7 +20,7 @@ const get = async () => {
 const login = async (data) => {
   const { email, senha } = data;
 
-  const connection = await connect(); // Obtenha uma conexão ao banco de dados
+  const connection = await connect(); 
 
   try {
     const sql = dbQueries.SELECT_USER
@@ -72,7 +74,7 @@ const verifyJWT = async (token, perfil) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const connection = await connect(); // Obtenha uma conexão ao banco de dados
 
-    const sql = dbQueries.UPDATE_USER
+    const sql = dbQueries.UPDATE_USER;
     const [results] = await connection.query(sql, [decoded.id]);
 
     if (results.length > 0) {
@@ -90,4 +92,97 @@ const verifyJWT = async (token, perfil) => {
   }
 };
 
-module.exports = { get, login, verifyJWT};
+// Variável global para armazenar o código de verificação
+let globalVerificationCode = null;
+
+// Função para enviar o e-mail com um código de verificação aleatório
+const sendVerificationCode = async (email) => {
+  // Gere um código de verificação aleatório
+  globalVerificationCode = generateVerificationCode();
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
+    },
+  });
+  const mailOptions = {
+    from: process.env.EMAIL,
+    to: email,
+    subject: "Código de verificação",
+    text: `Seu código de verificação é ${globalVerificationCode}. Use-o para alterar sua senha.`,
+  };
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        console.log("E-mail enviado: " + info.response);
+        resolve(globalVerificationCode);
+      }
+    });
+  });
+};
+
+// Função para gerar um código de verificação aleatório
+const generateVerificationCode = () => {
+  const length = 6; // Comprimento do código desejado
+  const charset = '0123456789'; // Caracteres permitidos no código
+  let code = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    code += charset[randomIndex];
+  }
+
+  return code;
+};
+
+// Função para atualizar a senha do usuário com código de verificação
+const updatePassword = async (data) => {
+  const { email, novaSenha, confirmSenha, codigo } = data;
+  const connection = await connect();
+
+  try {
+    // Verifica se o e-mail existe na tabela "pessoa"
+    const [pessoaResults] = await connection.query(
+      "SELECT id_pessoa FROM pessoa WHERE email = ?",
+      [email]
+    );
+
+    if (!pessoaResults || pessoaResults.length === 0) {
+      throw new Error("E-mail de usuário inválido.");
+    }
+
+    const pessoaId = pessoaResults[0].id_pessoa;
+
+    // Compare o código inserido pelo usuário com o código gerado anteriormente
+    if (codigo !== globalVerificationCode) {
+      throw new Error("Código de verificação inválido.");
+    }
+
+    if (novaSenha !== confirmSenha) {
+      throw new Error("A nova senha e a confirmação de senha não coincidem.");
+    }
+
+    const hashedPassword = await bcrypt.hash(novaSenha, 10);
+
+    // Atualiza a senha do usuário na tabela "usuario"
+    await connection.query(
+      "UPDATE usuario SET senha = ? WHERE pessoa_id_pessoa = ?",
+      [hashedPassword, pessoaId]
+    );
+
+    return {
+      auth: true,
+      message: "Senha atualizada com sucesso!",
+    };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Erro ao atualizar senha do usuário.");
+  }
+};
+
+module.exports = { get, login, verifyJWT, sendVerificationCode, updatePassword };
