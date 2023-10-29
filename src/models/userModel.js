@@ -92,9 +92,9 @@ const verifyJWT = async (token, perfil) => {
   }
 };
 
-// Variável global para armazenar o código de verificação e o horário de criação
+// Variáveis globais para armazenar o código de verificação e o horário de criação
 let globalVerificationData = { code: null, timestamp: null };
-const verificationCodeValidityMinutes = 15; // Tempo de validade em minutos
+const verificationCodeValidityMinutes = 1; // Tempo de validade em minutos
 
 // Variável global para rastrear se o código já foi usado
 let isVerificationCodeUsed = false;
@@ -109,36 +109,51 @@ const sendVerificationCode = async (email) => {
   // Gere um código de verificação aleatório
   const verificationCode = generateVerificationCode();
 
-  // Armazene o código de verificação e o horário de criação
-  globalVerificationData = {
-    code: verificationCode,
-    timestamp: new Date(),
-  };
+  // Armazene o código de verificação na tabela "usuario" usando o email obtido da tabela "pessoa"
+  const connection = await connect();
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-  const mailOptions = {
-    from: process.env.EMAIL,
-    to: email,
-    subject: "Código de verificação",
-    text: `Seu código de verificação é ${verificationCode}. Use-o para alterar sua senha. Este código é válido por ${verificationCodeValidityMinutes} minutos.`,
-  };
-  return new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-        reject(error);
-      } else {
-        console.log("E-mail enviado: " + info.response);
-        resolve(verificationCode);
-      }
+  try {
+    await connection.query(
+      "UPDATE usuario SET codigo = ? WHERE pessoa_id_pessoa = (SELECT id_pessoa FROM pessoa WHERE email = ?)",
+      [verificationCode, email]
+    );
+
+    // Armazene o código de verificação e o horário de criação
+    globalVerificationData = {
+      code: verificationCode,
+      timestamp: new Date(),
+    };
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
     });
-  });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Código de verificação",
+      text: `Seu código de verificação é ${verificationCode}. Use-o para alterar sua senha. Este código é válido por ${verificationCodeValidityMinutes} minutos.`,
+    };
+
+    return new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error);
+          reject(error);
+        } else {
+          console.log("E-mail enviado: " + info.response);
+          resolve(verificationCode);
+        }
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    throw new Error("Erro ao enviar código de verificação.");
+  }
 };
 
 // Função para gerar um código de verificação aleatório
@@ -157,14 +172,23 @@ const generateVerificationCode = () => {
 
 // Função para verificar se o código de verificação ainda é válido
 const isVerificationCodeValid = () => {
-  if (!globalVerificationData.code || !globalVerificationData.timestamp) {
+  if (
+    !globalVerificationData.code ||
+    !globalVerificationData.timestamp ||
+    isVerificationCodeExpired()
+  ) {
     return false;
   }
 
+  return true;
+};
+
+// Função para verificar se o código de verificação expirou
+const isVerificationCodeExpired = () => {
   const currentTime = new Date();
   const timeDifference = (currentTime - globalVerificationData.timestamp) / (1000 * 60);
 
-  return timeDifference <= verificationCodeValidityMinutes && !isVerificationCodeUsed;
+  return timeDifference >= verificationCodeValidityMinutes;
 };
 
 // Função para atualizar a senha do usuário com código de verificação
@@ -187,7 +211,7 @@ const updatePassword = async (data) => {
 
     // Verifica se o código de verificação ainda é válido e não foi usado
     if (!isVerificationCodeValid() || codigo !== globalVerificationData.code) {
-      throw new Error("Código de verificação inválido.");
+      throw new Error("Código de verificação inválido ou expirado.");
     }
 
     if (novaSenha !== confirmSenha) {
@@ -214,5 +238,6 @@ const updatePassword = async (data) => {
     throw new Error("Erro ao atualizar senha do usuário.");
   }
 };
+
 
 module.exports = {get, login, verifyJWT, sendVerificationCode, updatePassword};
