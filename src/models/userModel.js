@@ -99,22 +99,15 @@ const verificationCodeValidityMinutes = 1; // Tempo de validade em minutos
 // Variável global para rastrear se o código já foi usado
 let isVerificationCodeUsed = false;
 
-// Função para enviar o e-mail com um código de verificação aleatório
 const sendVerificationCode = async (email) => {
-  // Verifica se o código já foi usado anteriormente
-  if (isVerificationCodeUsed) {
-    return Promise.reject(new Error("O código de verificação já foi usado."));
-  }
-
   // Gere um código de verificação aleatório
   const verificationCode = generateVerificationCode();
 
-  // Armazene o código de verificação na tabela "usuario" usando o email obtido da tabela "pessoa"
   const connection = await connect();
 
   try {
     await connection.query(
-      "UPDATE usuario SET codigo = ? WHERE pessoa_id_pessoa = (SELECT id_pessoa FROM pessoa WHERE email = ?)",
+      "UPDATE usuario SET codigo = ?, codigo_usado = false WHERE pessoa_id_pessoa = (SELECT id_pessoa FROM pessoa WHERE email = ?)",
       [verificationCode, email]
     );
 
@@ -145,8 +138,7 @@ const sendVerificationCode = async (email) => {
           console.log(error);
           reject(error);
         } else {
-          console.log("E-mail enviado: " + info.response);
-          resolve(verificationCode);
+          console.log("Código gerado");
         }
       });
     });
@@ -191,7 +183,6 @@ const isVerificationCodeExpired = () => {
   return timeDifference >= verificationCodeValidityMinutes;
 };
 
-// Função para atualizar a senha do usuário com código de verificação
 const updatePassword = async (data) => {
   const { email, novaSenha, confirmSenha, codigo } = data;
   const connection = await connect();
@@ -210,8 +201,13 @@ const updatePassword = async (data) => {
     const pessoaId = pessoaResults[0].id_pessoa;
 
     // Verifica se o código de verificação ainda é válido e não foi usado
-    if (!isVerificationCodeValid() || codigo !== globalVerificationData.code) {
+    if (!isVerificationCodeValid()) {
       throw new Error("Código de verificação inválido ou expirado.");
+    }
+
+    // Verifica se o código já foi usado
+    if (globalVerificationData.code !== codigo) {
+      throw new Error("Código de verificação já foi usado.");
     }
 
     if (novaSenha !== confirmSenha) {
@@ -221,12 +217,18 @@ const updatePassword = async (data) => {
     const hashedPassword = await bcrypt.hash(novaSenha, 10);
 
     // Marca o código de verificação como usado
-    isVerificationCodeUsed = true;
+    globalVerificationData.code = null;
 
     // Atualiza a senha do usuário na tabela "usuario"
     await connection.query(
       "UPDATE usuario SET senha = ? WHERE pessoa_id_pessoa = ?",
       [hashedPassword, pessoaId]
+    );
+
+    // Marca o código como usado na tabela usuario
+    await connection.query(
+      "UPDATE usuario SET codigo_usado = true WHERE pessoa_id_pessoa = ?",
+      [pessoaId]
     );
 
     return {
@@ -238,6 +240,5 @@ const updatePassword = async (data) => {
     throw new Error("Erro ao atualizar senha do usuário.");
   }
 };
-
 
 module.exports = {get, login, verifyJWT, sendVerificationCode, updatePassword};
