@@ -94,10 +94,7 @@ const verifyJWT = async (token, perfil) => {
 
 // Variáveis globais para armazenar o código de verificação e o horário de criação
 let globalVerificationData = { code: null, timestamp: null };
-const verificationCodeValidityMinutes = 1; // Tempo de validade em minutos
-
-// Variável global para rastrear se o código já foi usado
-let isVerificationCodeUsed = false;
+const verificationCodeValidityMinutes = 3; // Tempo de validade em minutos
 
 const sendVerificationCode = async (email) => {
   // Gere um código de verificação aleatório
@@ -139,6 +136,7 @@ const sendVerificationCode = async (email) => {
           reject(error);
         } else {
           console.log("Código gerado");
+          resolve("E-mail enviado com sucesso."); 
         }
       });
     });
@@ -147,6 +145,7 @@ const sendVerificationCode = async (email) => {
     throw new Error("Erro ao enviar código de verificação.");
   }
 };
+
 
 // Função para gerar um código de verificação aleatório
 const generateVerificationCode = () => {
@@ -178,7 +177,7 @@ const isVerificationCodeValid = () => {
 // Função para verificar se o código de verificação expirou
 const isVerificationCodeExpired = () => {
   const currentTime = new Date();
-  const timeDifference = (currentTime - globalVerificationData.timestamp) / (1000 * 60);
+  const timeDifference = (currentTime - globalVerificationData.timestamp) / (3000 * 60);
 
   return timeDifference >= verificationCodeValidityMinutes;
 };

@@ -167,10 +167,24 @@ async function deletarProjeto(projetoId) {
     }
 }
 
+// Função para listar projetos de alunos relacionados a um curso específico
+async function listarProjetosPorCurso(cursoId) {
+    try {
+      const connection = await connect();
+      
+      const [rows] = await connection.query(dbQueries.SELECT_CURSO_ALUNO_POR_ID, [cursoId]);
+      return { success: true, data: rows };
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: 'Erro ao buscar projetos públicos por curso' };
+    }
+}
+  
 module.exports = {
     criarProjeto,
     listarProjetos,
     listarProjetoPorId,
+    listarProjetosPorCurso,
     atualizarProjeto,
     deletarProjeto
 };

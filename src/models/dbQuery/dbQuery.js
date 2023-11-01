@@ -22,7 +22,6 @@ module.exports = {
   /* ------------------------USER Model (Final) ---------------------- */
 
   /* ------------------------Projeto Model (Inicio) ---------------------- */
- 
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
     INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema, publico)
@@ -38,24 +37,24 @@ module.exports = {
 
   // Consulta para selecionar todos os projetos com nomes dos autores e orientadores
   SELECT_PROJETOS: `
-  SELECT 
-  projeto.*,
-  JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
-  JSON_ARRAYAGG(JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
-FROM projeto
-LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
-LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-WHERE projeto.publico = 1
-GROUP BY projeto.id_projeto;`,
+    SELECT 
+      projeto.*,
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+    FROM projeto
+    LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+    LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+    LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+    WHERE projeto.publico = 1
+    GROUP BY projeto.id_projeto;`,
 
   // Consulta para selecionar um projeto por ID com nomes dos autores e orientador
   SELECT_PROJETO_POR_ID: `
     SELECT 
       projeto.*,
-      JSON_ARRAYAGG(JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
-      JSON_ARRAYAGG(JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
@@ -63,6 +62,20 @@ GROUP BY projeto.id_projeto;`,
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
     WHERE projeto.publico = 1 AND projeto.id_projeto = ?
     GROUP BY projeto.id_projeto; `,
+
+  SELECT_CURSO_ALUNO_POR_ID:  `
+  SELECT 
+  projeto.*,
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+FROM projeto
+INNER JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+INNER JOIN aluno_curso ON aluno_projeto.aluno_pessoa_id_pessoa = aluno_curso.aluno_pessoa_id_pessoa
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa 
+LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+WHERE aluno_curso.curso_id_curso = ? AND projeto.publico = 1
+GROUP BY projeto.id_projeto; `,
 
   // Consulta para verificar se um projeto com determinado ID existe
   VERIFICA_PROJETO: 'SELECT 1 FROM projeto WHERE id_projeto = ?',
@@ -129,14 +142,7 @@ GROUP BY projeto.id_projeto;`,
     GROUP BY projeto.id_projeto;`,
   /* ------------------------Aluno Model (Final) ---------------------- */
 
- /*-------------------------Curso Model (Inicio) -----------------*/
- SELECT_CURSOS: ` SELECT nome FROM curso;`,
- /*-------------------------Curso Model (Final) -----------------*/
-
-
-
-
-
-
-
+  /*-------------------------Curso Model (Inicio) -----------------*/
+  SELECT_CURSOS: ` SELECT nome FROM curso;`,
+  /*-------------------------Curso Model (Final) -----------------*/
 };
