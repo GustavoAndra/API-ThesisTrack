@@ -43,16 +43,13 @@ exports.sendVerificationCode = async (req, res) => {
 };
 
 // Controller para trocar a senha do usuário com código de verificação
-exports.updatePassword = async (req, res) => {
-  const { email, novaSenha, confirmSenha, codigo } = req.body;
+exports.updateProfile = async (req, res) => {
+  const { email, novaSenha, confirmSenha, newEmail, newNome, codigo, updateType } = req.body;
 
   try {
     // Chame a função do modelo para atualizar a senha
-    const result = await userModel.updatePassword({
-      email,
-      novaSenha,
-      confirmSenha,
-      codigo,
+    const result = await userModel.updateInfoWithVerificationCode({
+      email, novaSenha, confirmSenha, newEmail, newNome, codigo, updateType
     });
 
     // Retorne uma resposta de sucesso
@@ -60,18 +57,5 @@ exports.updatePassword = async (req, res) => {
   } catch (error) {
     // Em caso de erro, retorne uma resposta de erro
     res.status(500).json({ error: error.message });
-  }
-};
-
-// Controller para atualizar as informações do usuário (nome e email)
-exports.updateUserInfo = async (req, res) => {
-  const userId = req.params.id;
-  const { novoNome, novoEmail } = req.body;
-
-  try {
-    await userModel.updateUserInfo(userId, novoNome, novoEmail);
-    res.status(200).json({ message: "Perfil atualizado com sucesso." });
-  } catch (error) {
-    res.status(500).json({ error: "Erro ao atualizar o perfil do usuário." });
   }
 };

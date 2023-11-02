@@ -97,7 +97,7 @@ const verificationCodeValidityMinutes = 20; // Tempo de validade em minutos
 
 // Função para gerar um código de verificação aleatório com um comprimento específico
 const generateVerificationCode = (length) => {
-  const charset = '0123456789'; 
+  const charset = '0123456789';
   let code = '';
 
   for (let i = 0; i < length; i++) {
@@ -108,8 +108,9 @@ const generateVerificationCode = (length) => {
   return code;
 };
 
+// Função para enviar um código de verificação por email
 const sendVerificationCode = async (email) => {
-  const connection = await connect(); 
+  const connection = await connect();
 
   try {
     // Gera um código de verificação aleatório de 6 caracteres
@@ -138,7 +139,7 @@ const sendVerificationCode = async (email) => {
       from: process.env.EMAIL,
       to: email,
       subject: "Código de verificação",
-      text: `Seu código de verificação é ${verificationCode}. Use-o para alterar sua senha. Este código é válido por ${verificationCodeValidityMinutes} minutos.`,
+      text: `Seu código de verificação é ${verificationCode}. Use-o para alterar sua senha, email ou nome. Este código é válido por ${verificationCodeValidityMinutes} minutos.`,
     };
 
     return new Promise((resolve, reject) => {
@@ -179,9 +180,10 @@ const isVerificationCodeExpired = () => {
   return timeDifference >= verificationCodeValidityMinutes;
 };
 
-const updatePassword = async (data) => {
-  const { email, novaSenha, confirmSenha, codigo } = data;
-  const connection = await connect(); // Substitua por sua função de conexão
+// Função para atualizar a senha, email ou nome do usuário com um código de verificação
+const updateInfoWithVerificationCode = async (data) => {
+  const { email, novaSenha, confirmSenha, newEmail, newNome, codigo, updateType } = data;
+  const connection = await connect();
 
   try {
     // Verifica se o e-mail existe na tabela "pessoa"
@@ -215,11 +217,31 @@ const updatePassword = async (data) => {
       throw new Error("Código de verificação já foi usado.");
     }
 
-    if (novaSenha !== confirmSenha) {
-      throw new Error("A nova senha e a confirmação de senha não coincidem.");
-    }
+    if (updateType === "senha") {
+      if (novaSenha !== confirmSenha) {
+        throw new Error("A nova senha e a confirmação de senha não coincidem.");
+      }
 
-    const hashedPassword = await bcrypt.hash(novaSenha, 10);
+      const hashedPassword = await bcrypt.hash(novaSenha, 10);
+
+      // Atualiza a senha do usuário na tabela "usuario"
+      await connection.query(
+        "UPDATE usuario SET senha = ? WHERE pessoa_id_pessoa = ?",
+        [hashedPassword, pessoaId]
+      );
+    } else if (updateType === "email") {
+      // Atualiza o email do usuário na tabela "pessoa"
+      await connection.query(
+        "UPDATE pessoa SET email = ? WHERE id_pessoa = ?",
+        [newEmail, pessoaId]
+      );
+    } else if (updateType === "nome") {
+      // Atualiza o nome do usuário na tabela "pessoa"
+      await connection.query(
+        "UPDATE pessoa SET nome = ? WHERE id_pessoa = ?",
+        [newNome, pessoaId]
+      );
+    }
 
     // Marca o código de verificação como usado na tabela codigo_usuario
     await connection.query(
@@ -227,46 +249,9 @@ const updatePassword = async (data) => {
       [pessoaId, codigo]
     );
 
-    // Atualiza a senha do usuário na tabela "usuario"
-    await connection.query(
-      "UPDATE usuario SET senha = ? WHERE pessoa_id_pessoa = ?",
-      [hashedPassword, pessoaId]
-    );
-
     return {
       auth: true,
-      message: "Senha atualizada com sucesso!",
-    };
-  } catch (error) {
-    console.error(error);
-    throw new Error("Erro ao atualizar senha do usuário.");
-  }
-};
-
-//Função para pessoa poder trocar o nome e o email
-const updateUserInfo = async (userId, newNome, newEmail) => {
-  const connection = await connect();
-
-  try {
-    // Verifica se o usuário com o ID especificado existe
-    const [userResults] = await connection.query(
-      "SELECT id_pessoa FROM pessoa WHERE id_pessoa = ?",
-      [userId]
-    );
-
-    if (!userResults || userResults.length === 0) {
-      throw new Error("Usuário não encontrado.");
-    }
-
-    // Atualiza o nome e o email do usuário na tabela "pessoa"
-    await connection.query(
-      "UPDATE pessoa SET nome = ?, email = ? WHERE id_pessoa = ?",
-      [newNome, newEmail, userId]
-    );
-
-    return {
-      auth: true,
-      message: "Informações do usuário atualizadas com sucesso!",
+      message: `Informação atualizada com sucesso: ${updateType}`,
     };
   } catch (error) {
     console.error(error);
@@ -274,4 +259,4 @@ const updateUserInfo = async (userId, newNome, newEmail) => {
   }
 };
 
-module.exports = {get, login, verifyJWT, sendVerificationCode, updatePassword, updateUserInfo};
+module.exports = {get, login, verifyJWT, sendVerificationCode, updateInfoWithVerificationCode};
