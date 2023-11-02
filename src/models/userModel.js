@@ -94,24 +94,37 @@ const verifyJWT = async (token, perfil) => {
 
 // Variáveis globais para armazenar o código de verificação e o horário de criação
 let globalVerificationData = { code: null, timestamp: null };
-const verificationCodeValidityMinutes = 3; // Tempo de validade em minutos
+const verificationCodeValidityMinutes = 20; // Tempo de validade em minutos
+
+// Função para gerar um código de verificação aleatório com um comprimento específico
+const generateVerificationCode = (length) => {
+  const charset = '0123456789'; // Caracteres permitidos no código
+  let code = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    code += charset[randomIndex];
+  }
+
+  return code;
+};
 
 const sendVerificationCode = async (email) => {
-  const connection = await connect();
+  const connection = await connect(); // Substitua por sua função de conexão
 
   try {
-    // Gere um código de verificação aleatório
-    const verificationCode = generateVerificationCode();
+    // Gere um código de verificação aleatório de 6 caracteres
+    const verificationCode = generateVerificationCode(6);
 
     // Insira a data e hora atual como o código na tabela codigo_usuario
     await connection.query(
-      "INSERT INTO codigo_usuario (codigo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (NOW(), false, (SELECT id_pessoa FROM pessoa WHERE email = ?))",
-      [email]
+      "INSERT INTO codigo_usuario (codigo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (?, false, (SELECT id_pessoa FROM pessoa WHERE email = ?))",
+      [verificationCode, email]
     );
 
-    // Armazene o código de verificação (data e hora) e o horário de criação
+    // Armazene o código de verificação e o horário de criação
     globalVerificationData = {
-      code: new Date(), // Armazena a data e hora atuais
+      code: verificationCode,
       timestamp: new Date(),
     };
 
@@ -136,7 +149,7 @@ const sendVerificationCode = async (email) => {
           console.log(error);
           reject(error);
         } else {
-          console.log("Código gerado");
+          console.log("Código gerado e enviado por e-mail");
           resolve("E-mail enviado com sucesso.");
         }
       });
@@ -145,20 +158,6 @@ const sendVerificationCode = async (email) => {
     console.error(error);
     throw new Error("Erro ao enviar código de verificação.");
   }
-};
-
-// Função para gerar um código de verificação aleatório
-const generateVerificationCode = () => {
-  const length = 6; // Comprimento do código desejado
-  const charset = '0123456789'; // Caracteres permitidos no código
-  let code = '';
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    code += charset[randomIndex];
-  }
-
-  return code;
 };
 
 // Função para verificar se o código de verificação ainda é válido
@@ -177,14 +176,14 @@ const isVerificationCodeValid = () => {
 // Função para verificar se o código de verificação expirou
 const isVerificationCodeExpired = () => {
   const currentTime = new Date();
-  const timeDifference = (currentTime - globalVerificationData.timestamp) / (3000 * 60);
+  const timeDifference = (currentTime - globalVerificationData.timestamp) / (1000 * 60);
 
   return timeDifference >= verificationCodeValidityMinutes;
 };
 
 const updatePassword = async (data) => {
   const { email, novaSenha, confirmSenha, codigo } = data;
-  const connection = await connect();
+  const connection = await connect(); // Substitua por sua função de conexão
 
   try {
     // Verifica se o e-mail existe na tabela "pessoa"
@@ -205,7 +204,16 @@ const updatePassword = async (data) => {
     }
 
     // Verifica se o código já foi usado
-    if (globalVerificationData.code !== codigo) {
+    const [verificationResults] = await connection.query(
+      "SELECT codigo_usado FROM codigo_usuario WHERE usuario_pessoa_id_pessoa = ? AND codigo = ?",
+      [pessoaId, codigo]
+    );
+
+    if (!verificationResults || verificationResults.length === 0) {
+      throw new Error("Código de verificação não encontrado.");
+    }
+
+    if (verificationResults[0].codigo_usado) {
       throw new Error("Código de verificação já foi usado.");
     }
 
@@ -215,19 +223,16 @@ const updatePassword = async (data) => {
 
     const hashedPassword = await bcrypt.hash(novaSenha, 10);
 
-    // Marca o código de verificação como usado
-    globalVerificationData.code = null;
+    // Marca o código de verificação como usado na tabela codigo_usuario
+    await connection.query(
+      "UPDATE codigo_usuario SET codigo_usado = true WHERE usuario_pessoa_id_pessoa = ? AND codigo = ?",
+      [pessoaId, codigo]
+    );
 
     // Atualiza a senha do usuário na tabela "usuario"
     await connection.query(
       "UPDATE usuario SET senha = ? WHERE pessoa_id_pessoa = ?",
       [hashedPassword, pessoaId]
-    );
-
-    // Marca o código como usado na tabela codigo_usuario
-    await connection.query(
-      "UPDATE codigo_usuario SET codigo =?  codigo_usado = true WHERE usuario_pessoa_id_pessoa = ?",
-      [pessoaId, codigo]
     );
 
     return {
@@ -236,7 +241,7 @@ const updatePassword = async (data) => {
     };
   } catch (error) {
     console.error(error);
-    throw  Error("Erro ao atualizar senha do usuário.");
+    throw new Error("Erro ao atualizar senha do usuário.");
   }
 };
 
