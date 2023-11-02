@@ -29,6 +29,7 @@ async function listarProjetosDoProfessor(professorId) {
     }
 }
 
+//Função para cadastrar um novo professor no banco de dados
 async function cadastrarNovoProfessor(nome, email, senha) {
   const connection = await connect(); // Conecta ao banco de dados
   try {

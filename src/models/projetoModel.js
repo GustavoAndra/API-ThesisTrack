@@ -60,9 +60,16 @@ async function listarProjetos(usuarioId) {
 }
 
 // Função para listar um projeto por ID
-async function listarProjetoPorId(projetoId) {
-    const connection = await connect(); // Conecta ao banco de dados
+async function listarProjetoPorId(projetoId, pessoaId) {
+    const connection = await connect(); 
     try {
+        // Consulta para verificar se a pessoa está relacionada ao projeto
+        const [relacionadaRows] = await connection.query(dbQueries.VERIFICA_PESSOA_PROJETO, [projetoId, pessoaId, projetoId, pessoaId]);
+
+        if (relacionadaRows.length === 0) {
+            return { success: false, message: 'Você não tem permissão para acessar este projeto' };
+        }
+
         const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID, [projetoId]);
 
         if (rows.length === 0) {
@@ -75,6 +82,7 @@ async function listarProjetoPorId(projetoId) {
         return { success: false, error: 'Erro ao buscar projeto' };
     }
 }
+
 
 // Função para atualizar um projeto pelo ID
 async function atualizarProjeto(projetoId, {

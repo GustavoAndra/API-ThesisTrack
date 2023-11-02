@@ -9,11 +9,11 @@ const basePath = '/projeto';
 // Rota para listar todos os projetos
 router.get(`${basePath}/listar/`, projetoController.listarProjetos);
 
-// Rota para listar um projeto por ID
-router.get(`${basePath}/listar/:id`, projetoController.listarProjetoPorId);
+// Rota para listar um projeto por id referenciando seu criador
+router.get(`${basePath}/listar/:projetoId/aluno/:id`, projetoController.listarProjetoPorId);
 
 // Rota para listar os projetos de alunos com base no curso que essas pessoas se encontram
-router.get(`${basePath}/lista/aluno/curso/:id`, authMiddleware.verifyToken, projetoController.listarProjetosPorCurso);
+router.get(`${basePath}/lista/aluno/curso/:id`, projetoController.listarProjetosPorCurso);
 
 // Rota para criar um projeto (protegida por autenticação JWT)
 router.post(`${basePath}/adiciona`, authMiddleware.verifyToken, projetoController.criarProjeto);

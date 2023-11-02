@@ -1,5 +1,6 @@
 module.exports = {
   /* ------------------------USER Model (Inicio) ---------------------- */
+  
   // Consulta para selecionar um usuário por email
   SELECT_USER: `
     SELECT p.id_pessoa as id, p.nome, p.email,
@@ -12,7 +13,7 @@ module.exports = {
 
   // Consulta para selecionar todos os usuários
   SELECT_ALL_USER: `
-    SELECT *, (SELECT nome FROM pessoa WHERE id=u.pessoa_id_pessoa) as nome FROM usuario u`,
+   SELECT *, (SELECT nome FROM pessoa WHERE id=u.pessoa_id_pessoa) as nome FROM usuario u`,
 
   // Consulta para atualizar o perfil de um usuário por ID
   UPDATE_USER: 'SELECT perfil FROM usuario WHERE pessoa_id_pessoa = ?',
@@ -22,6 +23,7 @@ module.exports = {
   /* ------------------------USER Model (Final) ---------------------- */
 
   /* ------------------------Projeto Model (Inicio) ---------------------- */
+  
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
     INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema, publico)
@@ -40,7 +42,7 @@ module.exports = {
     SELECT 
       projeto.*,
       JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientador
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
@@ -49,19 +51,29 @@ module.exports = {
     WHERE projeto.publico = 1
     GROUP BY projeto.id_projeto;`,
 
+    // Consulta para verificar se a pessoa está relacionada a um projeto
+    VERIFICA_PESSOA_PROJETO: ` 
+SELECT 1
+FROM aluno_projeto
+WHERE projeto_id_projeto = ? AND aluno_pessoa_id_pessoa = ?
+UNION
+SELECT 1
+FROM orientacao
+WHERE projeto_id_projeto = ? AND professor_pessoa_id_pessoa = ? ;`,
+    
   // Consulta para selecionar um projeto por ID com nomes dos autores e orientador
   SELECT_PROJETO_POR_ID: `
-    SELECT 
-      projeto.*,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
-    FROM projeto
-    LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-    LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
-    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-    LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-    WHERE projeto.publico = 1 AND projeto.id_projeto = ?
-    GROUP BY projeto.id_projeto; `,
+  SELECT 
+    projeto.*,
+    JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+    JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+  FROM projeto
+  LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+  LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+  LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+  LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+  WHERE projeto.publico = 1 AND projeto.publico= 0 OR projeto.id_projeto = ?
+  GROUP BY projeto.id_projeto; `,
 
   SELECT_CURSO_ALUNO_POR_ID:  `
   SELECT 
@@ -81,9 +93,8 @@ GROUP BY projeto.id_projeto; `,
   VERIFICA_PROJETO: 'SELECT 1 FROM projeto WHERE id_projeto = ?',
 
   // Consulta para atualizar um projeto por ID
-  UPDATE_PROJETO: `
-    UPDATE projeto SET titulo = ?, tema = ?, delimitacao = ?, resumo = ?,
-    problema = ?, publico = ? WHERE id_projeto = ?`,
+  UPDATE_PROJETO: ` 
+  UPDATE projeto SET titulo = ?, tema = ?, delimitacao = ?, resumo = ?, problema = ?, publico = ? WHERE id_projeto = ?`,
 
   // Consulta para excluir todos os alunos associados a um projeto
   DELETE_ALUNO_PROJETO: 'DELETE FROM aluno_projeto WHERE projeto_id_projeto = ?',
