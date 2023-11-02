@@ -15,6 +15,9 @@ router.get(`${basePath}/listar/:projetoId/aluno/:id`, projetoController.listarPr
 // Rota para listar os projetos de alunos com base no curso que essas pessoas se encontram (protegida por autenticação JWT)
 router.get(`${basePath}/lista/aluno/curso/:id`, authMiddleware.verifyToken, projetoController.listarProjetosPorCurso);
 
+// Rota para listar os projetos de alunos com base no curso que essas pessoas se encontram
+router.get(`${basePath}/lista/aluno/curso/:id`, projetoController.listarProjetosPorCurso);
+
 // Rota para criar um projeto (protegida por autenticação JWT)
 router.post(`${basePath}/adiciona`, authMiddleware.verifyToken, projetoController.criarProjeto);
 
