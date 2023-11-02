@@ -101,6 +101,23 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
     }
 }
 
+// Função para listar projetos de alunos relacionados a um curso específico
+async function listarProjetosPorCurso(cursoId) {
+    try {
+      const connection = await connect();
+      
+      const [rows] = await connection.query(dbQueries.SELECT_CURSO_ALUNO_POR_ID, [cursoId]);
+
+      if (rows.length === 0) {
+        return { success: false, message: 'Curso não correspondente' };
+    }
+
+      return { success: true, data: rows };
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: 'Erro ao buscar projetos públicos por curso' };
+    }
+}
 
 // Função para atualizar um projeto pelo ID
 async function atualizarProjeto(projetoId, {
@@ -193,18 +210,7 @@ async function deletarProjeto(projetoId) {
     }
 }
 
-// Função para listar projetos de alunos relacionados a um curso específico
-async function listarProjetosPorCurso(cursoId) {
-    try {
-      const connection = await connect();
-      
-      const [rows] = await connection.query(dbQueries.SELECT_CURSO_ALUNO_POR_ID, [cursoId]);
-      return { success: true, data: rows };
-    } catch (error) {
-      console.error(error);
-      return { success: false, message: 'Erro ao buscar projetos públicos por curso' };
-    }
-}
+
   
 module.exports = {
     criarProjeto,

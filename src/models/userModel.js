@@ -97,20 +97,21 @@ let globalVerificationData = { code: null, timestamp: null };
 const verificationCodeValidityMinutes = 3; // Tempo de validade em minutos
 
 const sendVerificationCode = async (email) => {
-  // Gere um código de verificação aleatório
-  const verificationCode = generateVerificationCode();
-
   const connection = await connect();
 
   try {
+    // Gere um código de verificação aleatório
+    const verificationCode = generateVerificationCode();
+
+    // Insira a data e hora atual como o código na tabela codigo_usuario
     await connection.query(
-      "UPDATE usuario SET codigo = ?, codigo_usado = false WHERE pessoa_id_pessoa = (SELECT id_pessoa FROM pessoa WHERE email = ?)",
-      [verificationCode, email]
+      "INSERT INTO codigo_usuario (codigo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (NOW(), false, (SELECT id_pessoa FROM pessoa WHERE email = ?))",
+      [email]
     );
 
-    // Armazene o código de verificação e o horário de criação
+    // Armazene o código de verificação (data e hora) e o horário de criação
     globalVerificationData = {
-      code: verificationCode,
+      code: new Date(), // Armazena a data e hora atuais
       timestamp: new Date(),
     };
 
@@ -136,7 +137,7 @@ const sendVerificationCode = async (email) => {
           reject(error);
         } else {
           console.log("Código gerado");
-          resolve("E-mail enviado com sucesso."); 
+          resolve("E-mail enviado com sucesso.");
         }
       });
     });
@@ -145,7 +146,6 @@ const sendVerificationCode = async (email) => {
     throw new Error("Erro ao enviar código de verificação.");
   }
 };
-
 
 // Função para gerar um código de verificação aleatório
 const generateVerificationCode = () => {
@@ -224,10 +224,10 @@ const updatePassword = async (data) => {
       [hashedPassword, pessoaId]
     );
 
-    // Marca o código como usado na tabela usuario
+    // Marca o código como usado na tabela codigo_usuario
     await connection.query(
-      "UPDATE usuario SET codigo_usado = true WHERE pessoa_id_pessoa = ?",
-      [pessoaId]
+      "UPDATE codigo_usuario SET codigo =?  codigo_usado = true WHERE usuario_pessoa_id_pessoa = ?",
+      [pessoaId, codigo]
     );
 
     return {
@@ -236,7 +236,7 @@ const updatePassword = async (data) => {
     };
   } catch (error) {
     console.error(error);
-    throw new Error("Erro ao atualizar senha do usuário.");
+    throw  Error("Erro ao atualizar senha do usuário.");
   }
 };
 
