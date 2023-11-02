@@ -1,6 +1,6 @@
 const userModel = require("../models/userModel");
 
-//Função para obter o usuário
+// Função para obter o usuário
 exports.get = async (headers) => {
   let auth;
   auth = await userModel.verifyJWT(
@@ -20,7 +20,7 @@ exports.get = async (headers) => {
   }
 };
 
-//Função para realizar o login do usuário
+// Função para realizar o login do usuário
 exports.login = async (body) => {
   const result = await userModel.login(body);
   if (result.auth) {
@@ -30,7 +30,7 @@ exports.login = async (body) => {
   }
 };
 
-//Função para trocar a senha do usuário
+// Função para enviar um código de verificação por e-mail
 exports.sendVerificationCode = async (req, res) => {
   const { email } = req.body;
   try {
@@ -60,5 +60,18 @@ exports.updatePassword = async (req, res) => {
   } catch (error) {
     // Em caso de erro, retorne uma resposta de erro
     res.status(500).json({ error: error.message });
+  }
+};
+
+// Controller para atualizar as informações do usuário (nome e email)
+exports.updateUserInfo = async (req, res) => {
+  const userId = req.params.id;
+  const { novoNome, novoEmail } = req.body;
+
+  try {
+    await userModel.updateUserInfo(userId, novoNome, novoEmail);
+    res.status(200).json({ message: "Perfil atualizado com sucesso." });
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao atualizar o perfil do usuário." });
   }
 };

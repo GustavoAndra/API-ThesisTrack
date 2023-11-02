@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const {connect} = require('./mysqlConnect');
 
-
 // Função para buscar todos os usuários
 const get = async () => {
   const connection = await connect(); 
@@ -72,7 +71,7 @@ const login = async (data) => {
 const verifyJWT = async (token, perfil) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const connection = await connect(); // Obtenha uma conexão ao banco de dados
+    const connection = await connect(); 
 
     const sql = dbQueries.UPDATE_USER;
     const [results] = await connection.query(sql, [decoded.id]);
@@ -98,7 +97,7 @@ const verificationCodeValidityMinutes = 20; // Tempo de validade em minutos
 
 // Função para gerar um código de verificação aleatório com um comprimento específico
 const generateVerificationCode = (length) => {
-  const charset = '0123456789'; // Caracteres permitidos no código
+  const charset = '0123456789'; 
   let code = '';
 
   for (let i = 0; i < length; i++) {
@@ -110,19 +109,18 @@ const generateVerificationCode = (length) => {
 };
 
 const sendVerificationCode = async (email) => {
-  const connection = await connect(); // Substitua por sua função de conexão
+  const connection = await connect(); 
 
   try {
-    // Gere um código de verificação aleatório de 6 caracteres
+    // Gera um código de verificação aleatório de 6 caracteres
     const verificationCode = generateVerificationCode(6);
 
-    // Insira a data e hora atual como o código na tabela codigo_usuario
     await connection.query(
       "INSERT INTO codigo_usuario (codigo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (?, false, (SELECT id_pessoa FROM pessoa WHERE email = ?))",
       [verificationCode, email]
     );
 
-    // Armazene o código de verificação e o horário de criação
+    // Armazena o código de verificação e o horário de criação
     globalVerificationData = {
       code: verificationCode,
       timestamp: new Date(),
@@ -176,7 +174,7 @@ const isVerificationCodeValid = () => {
 // Função para verificar se o código de verificação expirou
 const isVerificationCodeExpired = () => {
   const currentTime = new Date();
-  const timeDifference = (currentTime - globalVerificationData.timestamp) / (1000 * 60);
+  const timeDifference = (currentTime - globalVerificationData.timestamp) / (10000 * 60);
 
   return timeDifference >= verificationCodeValidityMinutes;
 };
@@ -245,4 +243,35 @@ const updatePassword = async (data) => {
   }
 };
 
-module.exports = {get, login, verifyJWT, sendVerificationCode, updatePassword};
+//Função para pessoa poder trocar o nome e o email
+const updateUserInfo = async (userId, newNome, newEmail) => {
+  const connection = await connect();
+
+  try {
+    // Verifica se o usuário com o ID especificado existe
+    const [userResults] = await connection.query(
+      "SELECT id_pessoa FROM pessoa WHERE id_pessoa = ?",
+      [userId]
+    );
+
+    if (!userResults || userResults.length === 0) {
+      throw new Error("Usuário não encontrado.");
+    }
+
+    // Atualiza o nome e o email do usuário na tabela "pessoa"
+    await connection.query(
+      "UPDATE pessoa SET nome = ?, email = ? WHERE id_pessoa = ?",
+      [newNome, newEmail, userId]
+    );
+
+    return {
+      auth: true,
+      message: "Informações do usuário atualizadas com sucesso!",
+    };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Erro ao atualizar informações do usuário.");
+  }
+};
+
+module.exports = {get, login, verifyJWT, sendVerificationCode, updatePassword, updateUserInfo};
