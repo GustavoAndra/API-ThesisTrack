@@ -59,8 +59,26 @@ async function listarProjetos(usuarioId) {
     }
 }
 
+// Função para listar um projeto por id
+async function listarProjetoPorId (projetoId) {
+    try{
+        const connection = await connect();
+        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID, [projetoId]);
+
+        if (rows.length === 0) {
+            return { success: false, message: 'Projeto não pode ser acessado' };
+        }
+
+        return { success: true, data: rows[0] };
+    }catch (error){
+        console.error(error);
+        return { success: false, error: 'Projeto não encontrado' };
+
+    }
+};
+
 // Função para listar um projeto por ID
-async function listarProjetoPorId(projetoId, pessoaId) {
+async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
     const connection = await connect(); 
     try {
         // Consulta para verificar se a pessoa está relacionada ao projeto
@@ -70,7 +88,7 @@ async function listarProjetoPorId(projetoId, pessoaId) {
             return { success: false, message: 'Você não tem permissão para acessar este projeto' };
         }
 
-        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID, [projetoId]);
+        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID_ALUNO, [projetoId]);
 
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
@@ -191,7 +209,8 @@ async function listarProjetosPorCurso(cursoId) {
 module.exports = {
     criarProjeto,
     listarProjetos,
-    listarProjetoPorId,
+   listarProjetoPorId,
+    listarProjetoPorIdDeAluno,
     listarProjetosPorCurso,
     atualizarProjeto,
     deletarProjeto

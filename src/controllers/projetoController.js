@@ -43,11 +43,20 @@ async function listarProjetos(req, res) {
 }
 
 // Controlador para listar um projeto específico por ID
-async function listarProjetoPorId(req, res) {
+async function listarProjetoPorId(req, res){
+const projetoId = req.params.id;
+
+const result = await projetoModel.listarProjetoPorId(projetoId);
+
+handleResponse(res, result);
+};
+
+// Controlador para listar um projeto específico por ID com aluno relacionado
+async function listarProjetoPorIdDeAluno(req, res) {
   const projetoId = req.params.projetoId;
   const pessoaId = req.params.id;
 
-  const result = await projetoModel.listarProjetoPorId(projetoId, pessoaId);
+  const result = await projetoModel.listarProjetoPorIdDeAluno(projetoId, pessoaId);
 
   handleResponse(res, result);
 }
@@ -109,6 +118,7 @@ module.exports = {
   criarProjeto,
   listarProjetos,
   listarProjetoPorId,
+  listarProjetoPorIdDeAluno,
   listarProjetosPorCurso,
   atualizarProjeto,
   deletarProjeto
