@@ -113,18 +113,19 @@ const sendVerificationCode = async (email) => {
   const connection = await connect();
 
   try {
-    // Gera um código de verificação aleatório de 6 caracteres
     const verificationCode = generateVerificationCode(6);
+    const currentTime = new Date();
 
+    // Insere o código de verificação na tabela 'codigo_usuario'
     await connection.query(
-      "INSERT INTO codigo_usuario (codigo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (?, false, (SELECT id_pessoa FROM pessoa WHERE email = ?))",
-      [verificationCode, email]
+      "INSERT INTO codigo_usuario (codigo, codigo_prazo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (?, ?, false, (SELECT id_pessoa FROM pessoa WHERE email = ?))",
+      [verificationCode, currentTime, email]
     );
 
     // Armazena o código de verificação e o horário de criação
     globalVerificationData = {
       code: verificationCode,
-      timestamp: new Date(),
+      timestamp: currentTime,
     };
 
     const transporter = nodemailer.createTransport({
@@ -175,7 +176,7 @@ const isVerificationCodeValid = () => {
 // Função para verificar se o código de verificação expirou
 const isVerificationCodeExpired = () => {
   const currentTime = new Date();
-  const timeDifference = (currentTime - globalVerificationData.timestamp) / (10000 * 60);
+  const timeDifference = (currentTime - globalVerificationData.timestamp) / (1000 * 60);
 
   return timeDifference >= verificationCodeValidityMinutes;
 };
@@ -186,7 +187,6 @@ const updateInfoWithVerificationCode = async (data) => {
   const connection = await connect();
 
   try {
-    // Verifica se o e-mail existe na tabela "pessoa"
     const [pessoaResults] = await connection.query(
       "SELECT id_pessoa FROM pessoa WHERE email = ?",
       [email]
@@ -198,23 +198,17 @@ const updateInfoWithVerificationCode = async (data) => {
 
     const pessoaId = pessoaResults[0].id_pessoa;
 
-    // Verifica se o código de verificação ainda é válido e não foi usado
     if (!isVerificationCodeValid()) {
       throw new Error("Código de verificação inválido ou expirado.");
     }
 
-    // Verifica se o código já foi usado
     const [verificationResults] = await connection.query(
-      "SELECT codigo_usado FROM codigo_usuario WHERE usuario_pessoa_id_pessoa = ? AND codigo = ?",
-      [pessoaId, codigo]
+      "SELECT codigo_usado FROM codigo_usuario WHERE usuario_pessoa_id_pessoa = ? AND codigo = ? AND codigo_usado = ?",
+      [pessoaId, codigo, false]
     );
 
     if (!verificationResults || verificationResults.length === 0) {
-      throw new Error("Código de verificação não encontrado.");
-    }
-
-    if (verificationResults[0].codigo_usado) {
-      throw new Error("Código de verificação já foi usado.");
+      throw new Error("Código de verificação não encontrado ou já foi usado.");
     }
 
     if (updateType === "senha") {
@@ -224,26 +218,22 @@ const updateInfoWithVerificationCode = async (data) => {
 
       const hashedPassword = await bcrypt.hash(novaSenha, 10);
 
-      // Atualiza a senha do usuário na tabela "usuario"
       await connection.query(
         "UPDATE usuario SET senha = ? WHERE pessoa_id_pessoa = ?",
         [hashedPassword, pessoaId]
       );
     } else if (updateType === "email") {
-      // Atualiza o email do usuário na tabela "pessoa"
       await connection.query(
         "UPDATE pessoa SET email = ? WHERE id_pessoa = ?",
         [newEmail, pessoaId]
       );
     } else if (updateType === "nome") {
-      // Atualiza o nome do usuário na tabela "pessoa"
       await connection.query(
         "UPDATE pessoa SET nome = ? WHERE id_pessoa = ?",
         [newNome, pessoaId]
       );
     }
 
-    // Marca o código de verificação como usado na tabela codigo_usuario
     await connection.query(
       "UPDATE codigo_usuario SET codigo_usado = true WHERE usuario_pessoa_id_pessoa = ? AND codigo = ?",
       [pessoaId, codigo]
@@ -258,5 +248,7 @@ const updateInfoWithVerificationCode = async (data) => {
     throw new Error("Erro ao atualizar informações do usuário.");
   }
 };
+
+
 
 module.exports = {get, login, verifyJWT, sendVerificationCode, updateInfoWithVerificationCode};
