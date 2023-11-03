@@ -108,18 +108,27 @@ const generateVerificationCode = (length) => {
   return code;
 };
 
-// Função para enviar um código de verificação por email
-const sendVerificationCode = async (email) => {
+const sendVerificationCode = async (email, result) => {
   const connection = await connect();
 
   try {
+    // Verifique se o email existe na tabela pessoa
+    const [pessoaResults] = await connection.query(
+      "SELECT id_pessoa FROM pessoa WHERE email = ?",
+      [email]
+    );
+
+    if (!pessoaResults || pessoaResults.length === 0) {
+      throw new Error("Email não encontrado.");
+    }
+
     const verificationCode = generateVerificationCode(6);
     const currentTime = new Date();
 
     // Insere o código de verificação na tabela 'codigo_usuario'
     await connection.query(
-      "INSERT INTO codigo_usuario (codigo, codigo_prazo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (?, ?, false, (SELECT id_pessoa FROM pessoa WHERE email = ?))",
-      [verificationCode, currentTime, email]
+      "INSERT INTO codigo_usuario (codigo, codigo_prazo, codigo_usado, usuario_pessoa_id_pessoa) VALUES (?, ?, false, ?)",
+      [verificationCode, currentTime, pessoaResults[0].id_pessoa]
     );
 
     // Armazena o código de verificação e o horário de criação
@@ -156,7 +165,7 @@ const sendVerificationCode = async (email) => {
     });
   } catch (error) {
     console.error(error);
-    throw new Error("Erro ao enviar código de verificação.");
+    throw new Error("Erro ao enviar código de verificação: " + error.message);
   }
 };
 
@@ -248,7 +257,5 @@ const updateInfoWithVerificationCode = async (data) => {
     throw new Error("Erro ao atualizar informações do usuário.");
   }
 };
-
-
 
 module.exports = {get, login, verifyJWT, sendVerificationCode, updateInfoWithVerificationCode};
