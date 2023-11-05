@@ -3,11 +3,13 @@ const dbQueries = require('../models/dbQuery/dbQuery');
 
 // Função para criar um projeto
 async function criarProjeto({
-    titulo,
-    tema,
-    delimitacao,
-    resumo,
-    problema,
+    titulo, 
+    tema, 
+    problema, 
+    resumo, 
+    abstract, 
+    objetivo_geral, 
+    objetivo_especifico,
     arquivo,
     publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
@@ -18,7 +20,7 @@ async function criarProjeto({
 
     try {
         // Query para inserir um novo projeto
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, delimitacao, resumo, problema, arquivo, publico]);
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, arquivo, publico,]);
 
         const projetoId = projetoResult.insertId; // Obtém o ID do projeto recém-inserido
 
@@ -122,11 +124,13 @@ async function listarProjetosPorCurso(cursoId) {
 
 // Função para atualizar um projeto pelo ID
 async function atualizarProjeto(projetoId, {
-    titulo,
-    tema,
-    delimitacao,
-    resumo,
-    problema,
+    titulo, 
+    tema, 
+    problema, 
+    resumo, 
+    abstract, 
+    objetivo_geral, 
+    objetivo_especifico,
     arquivo,
     publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
@@ -145,7 +149,7 @@ async function atualizarProjeto(projetoId, {
         }
 
         // Query para atualizar um projeto por ID
-        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, delimitacao, resumo, problema,arquivo, publico, projetoId]);
+        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico,arquivo, publico, projetoId]);
 
         // Verifica se existem alunos associados ao projeto e atualiza no banco
         if (alunos && alunos.length > 0) {

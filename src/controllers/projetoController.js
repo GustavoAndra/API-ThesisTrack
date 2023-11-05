@@ -12,27 +12,31 @@ function handleResponse(res, result) {
 // Controlador para criar um novo projeto
 async function criarProjeto(req, res) {
   const {
-    titulo,
-    tema,
-    delimitacao,
-    resumo,
-    problema,
+    titulo, 
+    tema, 
+    problema, 
+    resumo, 
+    abstract, 
+    objetivo_geral, 
+    objetivo_especifico,
     arquivo,
-    publico,
+    publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
     professores
   } = req.body;
 
   const result = await projetoModel.criarProjeto({
-    titulo,
-    tema,
-    delimitacao,
-    resumo,
-    problema,
+    titulo, 
+    tema, 
+    problema, 
+    resumo, 
+    abstract, 
+    objetivo_geral, 
+    objetivo_especifico,
     arquivo,
-    publico,
+    publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
-    professores,
+    professores
   });
 
   handleResponse(res, result);
@@ -85,25 +89,29 @@ async function listarProjetosPorCurso(req, res) {
 async function atualizarProjeto(req, res) {
   const projetoId = req.params.id;
   const {
-    titulo,
-    tema,
-    delimitacao,
-    resumo,
-    problema,
+    titulo, 
+    tema, 
+    problema, 
+    resumo, 
+    abstract, 
+    objetivo_geral, 
+    objetivo_especifico,
     arquivo,
-    publico,
+    publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
     professores
   } = req.body;
 
   const result = await projetoModel.atualizarProjeto(projetoId, {
-    titulo,
-    tema,
-    delimitacao,
-    resumo,
-    problema,
+    titulo, 
+    tema, 
+    problema, 
+    resumo, 
+    abstract, 
+    objetivo_geral, 
+    objetivo_especifico,
     arquivo,
-    publico,
+    publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
     professores
   });

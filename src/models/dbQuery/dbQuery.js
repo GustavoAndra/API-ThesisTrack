@@ -26,8 +26,8 @@ module.exports = {
   
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
-    INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema,arquivo, publico)
-    VALUES (?, ?, ?, ?, ?, ?,?)`,
+    INSERT INTO projeto (titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, arquivo, publico)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`,
 
   // Consulta para inserir um aluno associado a um projeto
   INSERT_ALUNO_PROJETO: 'INSERT INTO aluno_projeto (aluno_pessoa_id_pessoa, projeto_id_projeto) VALUES (?, ?)',
@@ -108,7 +108,7 @@ GROUP BY projeto.id_projeto; `,
 
   // Consulta para atualizar um projeto por ID
   UPDATE_PROJETO: ` 
-  UPDATE projeto SET titulo = ?, tema = ?, delimitacao = ?, resumo = ?, problema = ?, publico = ? WHERE id_projeto = ?`,
+  UPDATE projeto SET titulo=?, tema=?, problema=?, resumo=?, abstract=?, objetivo_geral=?, objetivo_especifico=?, arquivo=?, publico=? WHERE id_projeto = ?; ` ,
 
   // Consulta para excluir todos os alunos associados a um projeto
   DELETE_ALUNO_PROJETO: 'DELETE FROM aluno_projeto WHERE projeto_id_projeto = ?',
