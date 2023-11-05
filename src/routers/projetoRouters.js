@@ -12,8 +12,8 @@ router.get(`${basePath}/listar/`, projetoController.listarProjetos);
 // Rota para listar os projetos pelo seu id específico
 router.get(`${basePath}/listar/:id`, projetoController.listarProjetoPorId);
 
-// Rota para listar um projeto por id referenciando seu criador
-router.get(`${basePath}/listar/:projetoId/aluno/:id`, projetoController.listarProjetoPorIdDeAluno);
+// Rota para listar um projeto por id referenciando seus relacionados
+router.get(`${basePath}/listar/:projetoId/pessoa/:id`, projetoController.listarProjetoPorIdDeAluno);
 
 // Rota para listar os projetos de alunos com base no curso que essas pessoas se encontram
 router.get(`${basePath}/lista/aluno/curso/:id`, projetoController.listarProjetosPorCurso);
