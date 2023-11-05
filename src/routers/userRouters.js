@@ -17,12 +17,12 @@ userRouter.post('/login', async (req, res, next) => {
 });
 
 // Rota para solicitar um código de verificação por e-mail (protegida por autenticação JWT)
-userRouter.post("/reset-password/request", authMiddleware.verifyToken , async (req, res, next) => {
+userRouter.post("/reset-password/request", async (req, res, next) => {
   await userController.sendVerificationCode(req, res);
 });
 
 // Rota para atualizar o perfil do usuário (nome, email ou senha) (protegida por autenticação JWT)
-userRouter.put("/user/update-profile/:id", authMiddleware.verifyToken, async (req, res, next) => {
+userRouter.put("/user/update-profile/:id", async (req, res, next) => {
   await userController.updateProfile(req, res);
 });
 
