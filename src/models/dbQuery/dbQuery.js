@@ -26,8 +26,8 @@ module.exports = {
   
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
-    INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema, publico)
-    VALUES (?, ?, ?, ?, ?, ?)`,
+    INSERT INTO projeto (titulo, tema, delimitacao, resumo, problema,arquivo, publico)
+    VALUES (?, ?, ?, ?, ?, ?,?)`,
 
   // Consulta para inserir um aluno associado a um projeto
   INSERT_ALUNO_PROJETO: 'INSERT INTO aluno_projeto (aluno_pessoa_id_pessoa, projeto_id_projeto) VALUES (?, ?)',

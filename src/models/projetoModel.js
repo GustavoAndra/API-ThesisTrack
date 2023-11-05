@@ -8,6 +8,7 @@ async function criarProjeto({
     delimitacao,
     resumo,
     problema,
+    arquivo,
     publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
     professores
@@ -17,7 +18,7 @@ async function criarProjeto({
 
     try {
         // Query para inserir um novo projeto
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, delimitacao, resumo, problema, publico]);
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, delimitacao, resumo, problema, arquivo, publico]);
 
         const projetoId = projetoResult.insertId; // Obtém o ID do projeto recém-inserido
 
@@ -126,6 +127,7 @@ async function atualizarProjeto(projetoId, {
     delimitacao,
     resumo,
     problema,
+    arquivo,
     publico, // Parâmetro para definir se o projeto é público ou privado
     alunos,
     professores
@@ -143,7 +145,7 @@ async function atualizarProjeto(projetoId, {
         }
 
         // Query para atualizar um projeto por ID
-        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, delimitacao, resumo, problema, publico, projetoId]);
+        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, delimitacao, resumo, problema,arquivo, publico, projetoId]);
 
         // Verifica se existem alunos associados ao projeto e atualiza no banco
         if (alunos && alunos.length > 0) {

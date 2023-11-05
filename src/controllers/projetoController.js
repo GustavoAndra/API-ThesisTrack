@@ -17,6 +17,7 @@ async function criarProjeto(req, res) {
     delimitacao,
     resumo,
     problema,
+    arquivo,
     publico,
     alunos,
     professores
@@ -28,6 +29,7 @@ async function criarProjeto(req, res) {
     delimitacao,
     resumo,
     problema,
+    arquivo,
     publico,
     alunos,
     professores,
@@ -88,6 +90,7 @@ async function atualizarProjeto(req, res) {
     delimitacao,
     resumo,
     problema,
+    arquivo,
     publico,
     alunos,
     professores
@@ -99,6 +102,7 @@ async function atualizarProjeto(req, res) {
     delimitacao,
     resumo,
     problema,
+    arquivo,
     publico,
     alunos,
     professores
