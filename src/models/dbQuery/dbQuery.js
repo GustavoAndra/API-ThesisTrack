@@ -26,8 +26,8 @@ module.exports = {
   
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
-    INSERT INTO projeto (titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, arquivo, publico)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`,
+    INSERT INTO projeto (titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
 
   // Consulta para inserir um aluno associado a um projeto
   INSERT_ALUNO_PROJETO: 'INSERT INTO aluno_projeto (aluno_pessoa_id_pessoa, projeto_id_projeto) VALUES (?, ?)',
@@ -101,14 +101,14 @@ LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
 LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa 
 LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
 WHERE aluno_curso.curso_id_curso = ? AND projeto.publico = 1
-GROUP BY projeto.id_projeto; `,
+GROUP BY projeto.id_projeto;`,
 
   // Consulta para verificar se um projeto com determinado ID existe
   VERIFICA_PROJETO: 'SELECT 1 FROM projeto WHERE id_projeto = ?',
 
   // Consulta para atualizar um projeto por ID
   UPDATE_PROJETO: ` 
-  UPDATE projeto SET titulo=?, tema=?, problema=?, resumo=?, abstract=?, objetivo_geral=?, objetivo_especifico=?, arquivo=?, publico=? WHERE id_projeto = ?; ` ,
+  UPDATE projeto SET titulo=?, tema=?, problema=?, resumo=?, abstract=?, objetivo_geral=?, objetivo_especifico=?, url_projeto = ?,  arquivo=?, publico=? WHERE id_projeto = ?; ` ,
 
   // Consulta para excluir todos os alunos associados a um projeto
   DELETE_ALUNO_PROJETO: 'DELETE FROM aluno_projeto WHERE projeto_id_projeto = ?',

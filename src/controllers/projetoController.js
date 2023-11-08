@@ -19,8 +19,9 @@ async function criarProjeto(req, res) {
     abstract, 
     objetivo_geral, 
     objetivo_especifico,
+    url_projeto,
     arquivo,
-    publico, // Parâmetro para definir se o projeto é público ou privado
+    publico, 
     alunos,
     professores
   } = req.body;
@@ -33,8 +34,9 @@ async function criarProjeto(req, res) {
     abstract, 
     objetivo_geral, 
     objetivo_especifico,
+    url_projeto,
     arquivo,
-    publico, // Parâmetro para definir se o projeto é público ou privado
+    publico, 
     alunos,
     professores
   });
@@ -96,8 +98,9 @@ async function atualizarProjeto(req, res) {
     abstract, 
     objetivo_geral, 
     objetivo_especifico,
+    url_projeto,
     arquivo,
-    publico, // Parâmetro para definir se o projeto é público ou privado
+    publico, 
     alunos,
     professores
   } = req.body;
@@ -110,8 +113,9 @@ async function atualizarProjeto(req, res) {
     abstract, 
     objetivo_geral, 
     objetivo_especifico,
+    url_projeto,
     arquivo,
-    publico, // Parâmetro para definir se o projeto é público ou privado
+    publico, 
     alunos,
     professores
   });

@@ -35,9 +35,9 @@ async function listarProjetosDoProfessor(req, res) {
 
 // Controlador para cadastrar um novo professor
 async function cadastrarNovoProfessor(req, res) {
-    const { nome, email, senha } = req.body;
+    const { nome, email, senha, perfil } = req.body;
 
-    const result = await professorModel.cadastrarNovoProfessor(nome, email, senha);
+    const result = await professorModel.cadastrarNovoProfessor(nome, email, senha, perfil);
 
     if (result.success) {
         res.status(200).json({ message: result.message });

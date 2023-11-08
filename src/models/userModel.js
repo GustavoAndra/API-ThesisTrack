@@ -108,6 +108,7 @@ const generateVerificationCode = (length) => {
   return code;
 };
 
+//Função que envia o email pra pessoa com um código de verificação
 const sendVerificationCode = async (email, result) => {
   const connection = await connect();
 

@@ -30,7 +30,7 @@ async function listarProjetosDoProfessor(professorId) {
 }
 
 //Função para cadastrar um novo professor no banco de dados
-async function cadastrarNovoProfessor(nome, email, senha) {
+async function cadastrarNovoProfessor(nome, email, senha, perfil) {
   const connection = await connect(); // Conecta ao banco de dados
   try {
     await connection.beginTransaction();
@@ -55,9 +55,8 @@ async function cadastrarNovoProfessor(nome, email, senha) {
     await connection.query(insertUsuarioQuery, [hashedPassword, pessoaId, 'professor']);
 
     // 4. Inserir os dados na tabela professor
-    const insertProfessorQuery = 'INSERT INTO professor (pessoa_id_pessoa) VALUES (?)';
-    await connection.query(insertProfessorQuery, [pessoaId]);
-
+const insertProfessorQuery = 'INSERT INTO professor (pessoa_id_pessoa) VALUES (?)';
+await connection.query(insertProfessorQuery, [pessoaId]);
     await connection.commit(); // Confirma a transação
     return { success: true, message: 'Professor cadastrado com sucesso' };
   } catch (error) {
@@ -67,4 +66,5 @@ async function cadastrarNovoProfessor(nome, email, senha) {
   }
 
 }
+
 module.exports = { listarProfessores, listarProjetosDoProfessor, cadastrarNovoProfessor };
