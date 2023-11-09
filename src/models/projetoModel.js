@@ -1,7 +1,7 @@
 const { connect } = require('../models/mysqlConnect'); 
 const dbQueries = require('../models/dbQuery/dbQuery');
-const fs = require('fs');
 
+// Função para criar um novo projeto
 async function criarProjeto({
     titulo, 
     tema, 
@@ -19,10 +19,8 @@ async function criarProjeto({
     const connection = await connect(); // Conecta ao banco de dados
 
     try {
-        const pdfContent = arquivo && arquivo.path ? fs.readFileSync(arquivo.path) : null;
-
-        // Query para inserir um novo projeto com o PDF
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, pdfContent, publico]);
+        // Query para inserir um novo projeto 
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, arquivo, url_projeto, publico]);
 
         const projetoId = projetoResult.insertId;
 
@@ -56,10 +54,8 @@ async function listarProjetos(usuarioId) {
         const connection = await connect(); // Conecta ao banco de dados
         const [rows] = await connection.query(dbQueries.SELECT_PROJETOS, [usuarioId]);
 
-        // Adicione pdfContent aos dados retornados
         const projetos = rows.map(projeto => ({
             ...projeto,
-            pdfContent: projeto.pdf,
             autores: JSON.parse(projeto.autores),
             orientadores: JSON.parse(projeto.orientadores)
         }));
@@ -78,16 +74,12 @@ async function listarProjetoPorId(projetoId) {
         const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID, [projetoId]);
 
         if (rows.length === 0) {
-            return { success: false, message: 'Projeto não pode ser acessado' };
+            return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
         const projeto = rows[0];
 
-        // Recupera o conteúdo do PDF do banco de dados
-        const pdfContent = projeto.pdf;
-
-        // Adicione pdfContent aos dados retornados
-        return { success: true, data: { ...projeto, pdfContent, autores: JSON.parse(projeto.autores), orientadores: JSON.parse(projeto.orientadores) } };
+        return { success: true, data: { ...projeto, autores: JSON.parse(projeto.autores), orientadores: JSON.parse(projeto.orientadores) } };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Projeto não encontrado' };
@@ -113,11 +105,7 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
 
         const projeto = rows[0];
 
-        // Recupera o conteúdo do PDF do banco de dados
-        const pdfContent = projeto.pdf;
-
-        // Adicione pdfContent aos dados retornados
-        return { success: true, data: { ...projeto, pdfContent, autores: JSON.parse(projeto.autores), orientadores: JSON.parse(projeto.orientadores) } };
+        return { success: true, data: { ...projeto, autores: JSON.parse(projeto.autores), orientadores: JSON.parse(projeto.orientadores) } };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };
@@ -135,10 +123,9 @@ async function listarProjetosPorCurso(cursoId) {
             return { success: false, message: 'Curso não correspondente' };
         }
 
-        // Adicione pdfContent aos dados retornados e converta autores e orientadores para strings JSON
+       // Dados retornados e converta autores e orientadores para strings JSON
         const projetos = rows.map(projeto => ({
             ...projeto,
-            pdfContent: projeto.pdf,
             autores: JSON.parse(projeto.autores),
             orientadores: JSON.parse(projeto.orientadores)
         }));
@@ -177,7 +164,7 @@ async function atualizarProjeto(projetoId, {
             throw new Error('Projeto não encontrado');
         }
 
-        // Query para atualizar um projeto por ID, incluindo o PDF
+        // Query para atualizar um projeto por ID
         await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico, projetoId]);
 
         // Verifica se existem alunos associados ao projeto e atualiza no banco
@@ -215,6 +202,7 @@ async function atualizarProjeto(projetoId, {
     }
 }
 
+// Função para deletar um projeto pelo ID
 async function deletarProjeto(projetoId) {
     const connection = await connect(); // Conecta ao banco de dados
     await connection.beginTransaction(); // Inicia uma transação no banco
@@ -252,7 +240,7 @@ async function deletarProjeto(projetoId) {
 module.exports = {
     criarProjeto,
     listarProjetos,
-   listarProjetoPorId,
+    listarProjetoPorId,
     listarProjetoPorIdDeAluno,
     listarProjetosPorCurso,
     atualizarProjeto,
