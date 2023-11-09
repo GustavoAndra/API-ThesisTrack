@@ -53,7 +53,7 @@ async function listarProjetos(usuarioId) {
         const connection = await connect(); // Conecta ao banco de dados
         const [rows] = await connection.query(dbQueries.SELECT_PROJETOS, [usuarioId]);
 
-        // Adicione pdfContent aos dados retornados
+
         const projetos = rows.map(projeto => ({
             ...projeto,
             
@@ -79,9 +79,15 @@ async function listarProjetoPorId(projetoId) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const projeto = rows[0];
+        const projetos = rows.map(projeto => ({
+            ...projeto,
+            
+            autores: JSON.parse(projeto.autores),
+            orientadores: JSON.parse(projeto.orientadores)
+        }));
 
-        return { success: true, data: { ...projeto, autores: JSON.parse(projeto.autores), orientadores: JSON.parse(projeto.orientadores) } };
+
+        return { success: true, data: projetos };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Projeto não encontrado' };
