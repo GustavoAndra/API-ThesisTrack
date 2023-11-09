@@ -1,6 +1,6 @@
 const express = require('express');
-const projetoController = require('../controllers/projetoController');
 const router = express.Router();
+const projetoController = require('../controllers/projetoController');
 const authMiddleware = require('../middleware/auth');
 
 // Define um caminho base para todas as rotas deste arquivo

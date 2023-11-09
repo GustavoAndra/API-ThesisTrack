@@ -48,14 +48,15 @@ async function criarProjeto({
     }
 }
 
-// Função para listar todos os projetos
 async function listarProjetos(usuarioId) {
     try {
         const connection = await connect(); // Conecta ao banco de dados
         const [rows] = await connection.query(dbQueries.SELECT_PROJETOS, [usuarioId]);
 
+        // Adicione pdfContent aos dados retornados
         const projetos = rows.map(projeto => ({
             ...projeto,
+            
             autores: JSON.parse(projeto.autores),
             orientadores: JSON.parse(projeto.orientadores)
         }));
@@ -63,9 +64,10 @@ async function listarProjetos(usuarioId) {
         return { success: true, data: projetos };
     } catch (error) {
         console.error(error);
-        return { success: false, error: 'Erro ao buscar projetos' };
+        return { success: false, error: 'Projeto não encontrado' };
     }
 }
+
 
 // Função para listar um projeto por id
 async function listarProjetoPorId(projetoId) {
