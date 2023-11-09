@@ -20,7 +20,7 @@ async function criarProjeto({
 
     try {
         // Query para inserir um novo projeto 
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, arquivo, url_projeto, publico]);
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto,arquivo, publico]);
 
         const projetoId = projetoResult.insertId;
 
@@ -52,7 +52,10 @@ async function listarProjetos(usuarioId) {
     try {
         const connection = await connect(); // Conecta ao banco de dados
         const [rows] = await connection.query(dbQueries.SELECT_PROJETOS, [usuarioId]);
-
+        
+        if (rows.length === 0) {
+            return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
+        }
 
         const projetos = rows.map(projeto => ({
             ...projeto,
@@ -68,7 +71,6 @@ async function listarProjetos(usuarioId) {
     }
 }
 
-
 // Função para listar um projeto por id
 async function listarProjetoPorId(projetoId) {
     try {
@@ -81,11 +83,9 @@ async function listarProjetoPorId(projetoId) {
 
         const projetos = rows.map(projeto => ({
             ...projeto,
-            
             autores: JSON.parse(projeto.autores),
             orientadores: JSON.parse(projeto.orientadores)
         }));
-
 
         return { success: true, data: projetos };
     } catch (error) {
