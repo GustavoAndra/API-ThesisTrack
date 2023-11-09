@@ -13,7 +13,7 @@ router.get(`${basePath}/listar/`, projetoController.listarProjetos);
 router.get(`${basePath}/listar/:id`, projetoController.listarProjetoPorId);
 
 // Rota para listar um projeto por id referenciando seus relacionados
-router.get(`${basePath}/listar/:projetoId/pessoa/:id`, authMiddleware.verifyToken, projetoController.listarProjetoPorIdDeAluno);
+router.get(`${basePath}/listar/:projetoId/pessoa/:id`, projetoController.listarProjetoPorIdDeAluno);
 
 // Rota para listar os projetos de alunos com base no curso que essas pessoas se encontram
 router.get(`${basePath}/lista/aluno/curso/:id`, projetoController.listarProjetosPorCurso);
