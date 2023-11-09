@@ -8,9 +8,8 @@ async function listarCursos() {
 
     const [rows] = await connection.execute(dbQueries.SELECT_CURSOS); 
 
-    const nomesDosCursos = rows.map(row => row.nome);
-
-    return { success: true, data: nomesDosCursos };
+    return { success: true, data: rows };
+    
   } catch (error) {
     console.error('Erro ao listar os cursos:', error);
     return { success: false, error: 'Erro ao listar os cursos' };

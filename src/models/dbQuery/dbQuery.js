@@ -41,15 +41,16 @@ module.exports = {
   SELECT_PROJETOS: `
     SELECT 
       projeto.*,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientador
+      JSON_UNQUOTE(JSON_ARRAYAGG(JSON_OBJECT('id_aluno', aluno.id_pessoa, 'nome', aluno.nome))) AS autores,
+      JSON_UNQUOTE(JSON_ARRAYAGG(JSON_OBJECT('id_orientador', orientador.id_pessoa, 'nome', orientador.nome))) AS orientadores
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
     LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
     WHERE projeto.publico = 1
-    GROUP BY projeto.id_projeto;`,
+    GROUP BY projeto.id_projeto;
+ `,
 
     // Consulta para verificar se a pessoa está relacionada a um projeto
     VERIFICA_PESSOA_PROJETO: ` 

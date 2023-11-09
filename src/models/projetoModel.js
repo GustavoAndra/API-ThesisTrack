@@ -50,7 +50,6 @@ async function criarProjeto({
     }
 }
 
-
 // Função para listar todos os projetos
 async function listarProjetos(usuarioId) {
     try {
@@ -58,7 +57,12 @@ async function listarProjetos(usuarioId) {
         const [rows] = await connection.query(dbQueries.SELECT_PROJETOS, [usuarioId]);
 
         // Adicione pdfContent aos dados retornados
-        const projetos = rows.map(projeto => ({ ...projeto, pdfContent: projeto.pdf }));
+        const projetos = rows.map(projeto => ({
+            ...projeto,
+            pdfContent: projeto.pdf,
+            autores: JSON.parse(projeto.autores),
+            orientadores: JSON.parse(projeto.orientadores)
+        }));
 
         return { success: true, data: projetos };
     } catch (error) {
@@ -66,7 +70,6 @@ async function listarProjetos(usuarioId) {
         return { success: false, error: 'Erro ao buscar projetos' };
     }
 }
-
 
 // Função para listar um projeto por id
 async function listarProjetoPorId(projetoId) {
@@ -84,15 +87,14 @@ async function listarProjetoPorId(projetoId) {
         const pdfContent = projeto.pdf;
 
         // Adicione pdfContent aos dados retornados
-        return { success: true, data: { ...projeto, pdfContent } };
+        return { success: true, data: { ...projeto, pdfContent, autores: JSON.parse(projeto.autores), orientadores: JSON.parse(projeto.orientadores) } };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Projeto não encontrado' };
     }
 }
 
-
-// Função para listar um projeto por ID
+// Função para listar um projeto por ID de aluno
 async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
     const connection = await connect(); 
     try {
@@ -109,7 +111,13 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
             return { success: false, message: 'Projeto não encontrado' };
         }
 
-        return { success: true, data: rows[0] };
+        const projeto = rows[0];
+
+        // Recupera o conteúdo do PDF do banco de dados
+        const pdfContent = projeto.pdf;
+
+        // Adicione pdfContent aos dados retornados
+        return { success: true, data: { ...projeto, pdfContent, autores: JSON.parse(projeto.autores), orientadores: JSON.parse(projeto.orientadores) } };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };
@@ -119,19 +127,26 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
 // Função para listar projetos de alunos relacionados a um curso específico
 async function listarProjetosPorCurso(cursoId) {
     try {
-      const connection = await connect();
+        const connection = await connect();
       
-      const [rows] = await connection.query(dbQueries.SELECT_CURSO_ALUNO_POR_ID, [cursoId]);
+        const [rows] = await connection.query(dbQueries.SELECT_CURSO_ALUNO_POR_ID, [cursoId]);
 
-      if (rows.length === 0) {
-        return { success: false, message: 'Curso não correspondente' };
-    }
+        if (rows.length === 0) {
+            return { success: false, message: 'Curso não correspondente' };
+        }
 
-      return { success: true, data: rows };
+        // Adicione pdfContent aos dados retornados e converta autores e orientadores para strings JSON
+        const projetos = rows.map(projeto => ({
+            ...projeto,
+            pdfContent: projeto.pdf,
+            autores: JSON.parse(projeto.autores),
+            orientadores: JSON.parse(projeto.orientadores)
+        }));
 
+        return { success: true, data: projetos };
     } catch (error) {
-      console.error(error);
-      return { success: false, message: 'Erro ao buscar projetos públicos por curso' };
+        console.error(error);
+        return { success: false, message: 'Erro ao buscar projetos públicos por curso' };
     }
 }
 
