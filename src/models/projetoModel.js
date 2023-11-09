@@ -1,7 +1,7 @@
 const { connect } = require('../models/mysqlConnect'); 
 const dbQueries = require('../models/dbQuery/dbQuery');
+const fs = require('fs');
 
-// Função para criar um projeto
 async function criarProjeto({
     titulo, 
     tema, 
@@ -19,8 +19,10 @@ async function criarProjeto({
     const connection = await connect(); // Conecta ao banco de dados
 
     try {
-         // Query para inserir um novo projeto
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico]);
+        const pdfContent = arquivo && arquivo.path ? fs.readFileSync(arquivo.path) : null;
+
+        // Query para inserir um novo projeto com o PDF
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, pdfContent, publico]);
 
         const projetoId = projetoResult.insertId;
 
@@ -55,16 +57,20 @@ async function listarProjetos(usuarioId) {
         const connection = await connect(); // Conecta ao banco de dados
         const [rows] = await connection.query(dbQueries.SELECT_PROJETOS, [usuarioId]);
 
-        return { success: true, data: rows };
+        // Adicione pdfContent aos dados retornados
+        const projetos = rows.map(projeto => ({ ...projeto, pdfContent: projeto.pdf }));
+
+        return { success: true, data: projetos };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projetos' };
     }
 }
 
+
 // Função para listar um projeto por id
-async function listarProjetoPorId (projetoId) {
-    try{
+async function listarProjetoPorId(projetoId) {
+    try {
         const connection = await connect();
         const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID, [projetoId]);
 
@@ -72,13 +78,19 @@ async function listarProjetoPorId (projetoId) {
             return { success: false, message: 'Projeto não pode ser acessado' };
         }
 
-        return { success: true, data: rows[0] };
-    }catch (error){
+        const projeto = rows[0];
+
+        // Recupera o conteúdo do PDF do banco de dados
+        const pdfContent = projeto.pdf;
+
+        // Adicione pdfContent aos dados retornados
+        return { success: true, data: { ...projeto, pdfContent } };
+    } catch (error) {
         console.error(error);
         return { success: false, error: 'Projeto não encontrado' };
-
     }
-};
+}
+
 
 // Função para listar um projeto por ID
 async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
@@ -116,6 +128,7 @@ async function listarProjetosPorCurso(cursoId) {
     }
 
       return { success: true, data: rows };
+
     } catch (error) {
       console.error(error);
       return { success: false, message: 'Erro ao buscar projetos públicos por curso' };
@@ -131,9 +144,9 @@ async function atualizarProjeto(projetoId, {
     abstract, 
     objetivo_geral, 
     objetivo_especifico,
+    url_projeto,
     arquivo,
     publico, 
-    url_projeto,
     alunos,
     professores
 }) {
@@ -149,8 +162,8 @@ async function atualizarProjeto(projetoId, {
             throw new Error('Projeto não encontrado');
         }
 
-        // Query para atualizar um projeto por ID
-        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico,  url_projeto, arquivo, publico, projetoId]);
+        // Query para atualizar um projeto por ID, incluindo o PDF
+        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico, projetoId]);
 
         // Verifica se existem alunos associados ao projeto e atualiza no banco
         if (alunos && alunos.length > 0) {
@@ -203,16 +216,20 @@ async function deletarProjeto(projetoId) {
     try {
         // Query para deletar um projeto por ID
         await connection.query(dbQueries.DELETE_ALUNO_PROJETO, [projetoId]);
+
         await connection.query(dbQueries.DELETE_PROFESSOR_PROJETO, [projetoId]);
+
         await connection.query(dbQueries.DELETE_PROJETO, [projetoId]);
 
         await connection.commit(); // Confirma a transação no banco de dados
 
         return { success: true, message: 'Projeto deletado com sucesso!' };
     } catch (error) {
+        
         await connection.rollback(); // Reverte a transação em caso de erro
 
         console.error(error);
+        
         return { success: false, message: 'Erro ao deletar o projeto.' };
     }
 }
