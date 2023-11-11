@@ -102,7 +102,7 @@ async function listarProjetoPorId(projetoId) {
     }
 }
 
-// Função para listar um projeto por ID de aluno
+// Função para listar um projeto por ID 
 async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
     const connection = await connect(); 
     try {
@@ -113,14 +113,17 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
             return { success: false, message: 'Você não tem permissão para acessar este projeto' };
         }
 
-        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID_ALUNO, [projetoId]);
+        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_POR_ID_ALUNO, [projetoId, pessoaId]);
 
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
-        const  projeto = rows[0];
-       
+        
+        const projeto = rows[0]; // Obter o primeiro projeto da lista
+        
         return { success: true, data: projeto };
+        
+
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };

@@ -188,8 +188,11 @@ LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
 LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
 LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
 LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-WHERE aluno_projeto.aluno_pessoa_id_pessoa = ? OR projeto.publico = 0
-GROUP BY projeto.id_projeto;  `,
+WHERE (aluno_projeto.aluno_pessoa_id_pessoa = ? OR orientacao.professor_pessoa_id_pessoa = ?)
+  AND (projeto.publico = 1 OR projeto.publico = 0)
+GROUP BY projeto.id_projeto;
+
+  `,
 
   /* ------------------------Aluno Model (Final) ---------------------- */
 
