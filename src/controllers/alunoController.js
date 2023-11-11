@@ -1,56 +1,64 @@
 const alunoModel = require('../models/alunoModel');
 
-//Função para listar os alunos
+// Função central para tratar erros
+function handleError(res, errorMessage = 'Erro interno do servidor') {
+    return res.status(500).json({ error: errorMessage });
+}
+
+// Função para resposta de sucesso
+function sendSuccessResponse(res, message) {
+    return res.status(200).json({ message });
+}
+
+// Função para resposta de erro
+function sendErrorResponse(res, message, statusCode = 400) {
+    return res.status(statusCode).json({ message });
+}
+
 async function listarTodosAlunos(req, res) {
     try {
         const result = await alunoModel.listarAlunos();
         if (result.success) {
-            res.status(200).json(result.data);
+            return res.status(200).json(result.data);
         } else {
-            res.status(500).json({ error: result.error });
+            return sendErrorResponse(res, result.error);
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
+        return handleError(res);
     }
-
 }
 
-//listar projetos de um aluno
 async function listarProjetosDeAluno(req, res) {
     const alunoId = req.params.id;
 
     try {
         const result = await alunoModel.listarProjetosDeAluno(alunoId);
         if (result.success) {
-            res.json(result.data);
+            return res.json(result.data);
         } else {
-            res.status(500).json({ error: result.error });
+            return sendErrorResponse(res, result.error);
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro ao buscar projetos do aluno' });
+        return handleError(res, 'Erro ao buscar projetos do aluno');
     }
 }
 
-//Cadastrar um aluno
 const cadastrarAlunoController = async (req, res) => {
     try {
-      // Obtenha os dados do corpo da solicitação
-      const { nome, email, senha, cursoId, matricula } = req.body;
-  
-      // Chame a função para cadastrar o aluno
-      const resultado = await alunoModel.cadastrarAluno({nome, email, senha }, cursoId, matricula);
-  
-      if (resultado.success) {
-        res.status(200).json({ message: resultado.message });
-      } else {
-        res.status(400).json({ message: resultado.message });
-      }
+        const { nome, email, senha, cursoId, matricula } = req.body;
+        const resultado = await alunoModel.cadastrarAluno({ nome, email, senha }, cursoId, matricula);
+
+        if (resultado.success) {
+            return sendSuccessResponse(res, resultado.message);
+        } else {
+            return sendErrorResponse(res, resultado.message, 400);
+        }
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Erro ao cadastrar aluno' });
+        console.error(error);
+        return handleError(res, 'Erro ao cadastrar aluno');
     }
 };
 
-module.exports = {listarTodosAlunos, listarProjetosDeAluno, cadastrarAlunoController};
+module.exports = { listarTodosAlunos, listarProjetosDeAluno, cadastrarAlunoController };

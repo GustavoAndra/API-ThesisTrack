@@ -44,6 +44,20 @@ async function criarProjeto(req, res) {
   handleResponse(res, result);
 }
 
+//Controlador para buscar um projeto por título
+async function buscarProjetosPorTitulo(req, res) {
+  const { titulo } = req.query;
+
+  try {
+      const projetos = await projetoModel.buscarProjetosPublicosPorTitulo(titulo);
+      
+      res.status(200).json(projetos);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erro ao buscar projetos por título' });
+  }
+}
+
 // Controlador para listar todos os projetos
 async function listarProjetos(req, res) {
   const result = await projetoModel.listarProjetos();
@@ -132,6 +146,7 @@ async function deletarProjeto(req, res) {
 
 module.exports = {
   criarProjeto,
+  buscarProjetosPorTitulo,
   listarProjetos,
   listarProjetoPorId,
   listarProjetoPorIdDeAluno,

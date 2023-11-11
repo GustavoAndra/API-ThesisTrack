@@ -10,7 +10,7 @@ async function listarAlunos() {
         // Executa a consulta para selecionar todos os alunos
         const [rows] = await connection.query(dbQueries.SELECT_ALUNO);
 
-        return { success: true, data: rows };
+        return { success: true, data: rows }; 
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar alunos' };
@@ -22,10 +22,17 @@ async function listarProjetosDeAluno(alunoId) {
     try {
         const connection = await connect(); 
 
-        // Executa a consulta para selecionar os projetos relacionados ao aluno com base no ID do aluno
+        // Executa a consulta para selecionar os projetos relacionados ao aluno com base no ID do aluno, que estejam públicos
         const [rows] = await connection.query(dbQueries.SELECT_ALUNO_PROJETO_ID, [alunoId]);
+       
+        const projetos = rows.map(projeto => ({
+            ...projeto,
+            // Converte as strings JSON para objetos
+            alunos: JSON.parse(projeto.alunos),
+            orientadores: JSON.parse(projeto.orientadores)
+        }));
 
-        return { success: true, data: rows }; 
+        return { success: true, data: projetos }; 
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projetos do aluno' };
@@ -33,7 +40,7 @@ async function listarProjetosDeAluno(alunoId) {
 }
 
 // Função para cadastrar um aluno
-const cadastrarAluno = async (data, cursoId, matricula) => {
+async function  cadastrarAluno (data, cursoId, matricula) {
     const { nome, email, senha } = data;
     const connection = await connect();
     try {

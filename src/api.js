@@ -18,7 +18,6 @@ const cursoRouter = require ('./routers/cursoRouter');
 // Rota para manipulação de usuários
 app.use('/user', userRoute); 
 
-// Rota para autenticação de usuários
 app.use('/login', userRoute);
 
 app.use(router);

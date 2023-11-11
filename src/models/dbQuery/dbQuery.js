@@ -52,6 +52,26 @@ module.exports = {
     WHERE projeto.publico = 1
     GROUP BY projeto.id_projeto;`,
 
+
+    //Consulta para buscar o Título do projeto de uma pessoa que tem o projeto privado
+    SELECT_PROJETO_TITULO: `SELECT 
+    projeto.*,
+    JSON_ARRAYAGG(
+        JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)
+    ) AS autores,
+    JSON_ARRAYAGG(
+        JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)
+    ) AS orientadores
+FROM projeto
+LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
+WHERE projeto.titulo LIKE ?
+    AND projeto.publico = 1
+GROUP BY projeto.id_projeto
+LIMIT 10 `,
+
   // Consulta para verificar se a pessoa está relacionada a um projeto
   VERIFICA_PESSOA_PROJETO: `
     SELECT 1
@@ -131,18 +151,18 @@ module.exports = {
     SELECT professor.pessoa_id_pessoa, pessoa.nome AS nome_professor
     FROM professor INNER JOIN pessoa ON professor.pessoa_id_pessoa = pessoa.id_pessoa`,
 
-  // Consulta para listar os professores orientadores de um projeto por id
+  // Consulta para listar os professores orientadores de um projeto por id, que seja público
   SELECT_PROFESSOR_ORIENTADOR_ID: `
     SELECT 
       projeto.*,
-      JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS alunos,
+      JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
       JSON_ARRAYAGG(JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
     LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
     LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
-    WHERE orientacao.professor_pessoa_id_pessoa = ?
+    WHERE orientacao.professor_pessoa_id_pessoa = ? AND  projeto.publico = 1
     GROUP BY projeto.id_projeto;`,
 
   /* ------------------------Professor Model (Final) ---------------------- */
@@ -155,21 +175,21 @@ module.exports = {
     aluno.matricula AS matricula_aluno FROM aluno
     INNER JOIN pessoa ON aluno.pessoa_id_pessoa = pessoa.id_pessoa; `,
 
-  // Lista os projetos que os alunos estão associados por id
+  // Lista os projetos que os alunos estão associados por id, que estejam públicos
   SELECT_ALUNO_PROJETO_ID: `
-    SELECT 
-      projeto.*,
-      JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS alunos,
-      JSON_ARRAYAGG(JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
-    FROM projeto
-    LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-    LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
-    LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
-    WHERE projeto.id_projeto IN (
-      SELECT projeto_id_projeto FROM aluno_projeto WHERE aluno_pessoa_id_pessoa = ?
-    )
-    GROUP BY projeto.id_projeto;`,
+  SELECT 
+    projeto.*,
+    JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS alunos,
+    JSON_ARRAYAGG(JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
+  FROM projeto
+  LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+  LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+  LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+  LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
+  WHERE projeto.id_projeto IN (
+    SELECT projeto_id_projeto FROM aluno_projeto WHERE aluno_pessoa_id_pessoa = ?
+  ) AND projeto.publico = 1
+  GROUP BY projeto.id_projeto;`,
 
   /* ------------------------Aluno Model (Final) ---------------------- */
 

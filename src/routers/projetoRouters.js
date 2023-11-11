@@ -27,4 +27,7 @@ router.put(`${basePath}/atualiza/:id`, authMiddleware.verifyToken, projetoContro
 // Rota para deletar um projeto por ID (protegida por autenticação JWT)
 router.delete(`${basePath}/delete/:id`, authMiddleware.verifyToken, projetoController.deletarProjeto);
 
+//Rota para buscar um projeto pelo título dele
+router.get('/buscar-projetos/', projetoController.buscarProjetosPorTitulo);
+
 module.exports = router;

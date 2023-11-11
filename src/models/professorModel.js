@@ -15,22 +15,32 @@ async function listarProfessores() {
     }
 }
 
-// Função para listar projetos associados a um professor específico com base no ID do professor
 async function listarProjetosDoProfessor(professorId) {
-    try {
-        const connection = await connect(); // Conecta ao banco de dados
+  try {
+      const connection = await connect(); // Conecta ao banco de dados
+      
+      const [rows] = await connection.query(dbQueries.SELECT_PROFESSOR_ORIENTADOR_ID, [professorId]);
+    
+      if (rows.length === 0) {
+          return { success: false, message: 'Não há projetos associados a este professor.' };
+      }
 
-        const [rows] = await connection.query(dbQueries.SELECT_PROFESSOR_ORIENTADOR_ID, [professorId]);
+      const projetos = rows.map(projeto => ({
+          ...projeto,
+          autores: JSON.parse(projeto.autores), // Convertendo a string JSON para objeto JavaScript
+          orientadores: JSON.parse(projeto.orientadores) // Convertendo a string JSON para objeto JavaScript
+      }));
 
-        return { success: true, data: rows }; // Retorna a lista de projetos associados ao professor
-    } catch (error) {
-        console.error(error);
-        return { success: false, error: 'Erro ao buscar projetos associados ao professor' };
-    }
+      return { success: true, data: projetos };
+  } catch (error) {
+      console.error(error);
+      return { success: false, error: 'Erro ao buscar projetos associados ao professor' };
+  }
 }
 
+
 //Função para cadastrar um novo professor no banco de dados
-async function cadastrarNovoProfessor(nome, email, senha, perfil) {
+async function cadastrarNovoProfessor(nome, email, senha) {
   const connection = await connect(); // Conecta ao banco de dados
   try {
     await connection.beginTransaction();
@@ -55,8 +65,9 @@ async function cadastrarNovoProfessor(nome, email, senha, perfil) {
     await connection.query(insertUsuarioQuery, [hashedPassword, pessoaId, 'professor']);
 
     // 4. Inserir os dados na tabela professor
-const insertProfessorQuery = 'INSERT INTO professor (pessoa_id_pessoa) VALUES (?)';
-await connection.query(insertProfessorQuery, [pessoaId]);
+    const insertProfessorQuery = 'INSERT INTO professor (pessoa_id_pessoa) VALUES (?)';
+    await connection.query(insertProfessorQuery, [pessoaId]);
+
     await connection.commit(); // Confirma a transação
     return { success: true, message: 'Professor cadastrado com sucesso' };
   } catch (error) {

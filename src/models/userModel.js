@@ -160,7 +160,7 @@ const sendVerificationCode = async (email, result) => {
           reject(error);
         } else {
           console.log("Código gerado e enviado por e-mail");
-          resolve("E-mail enviado com sucesso.");
+          resolve("Código enviado para o e-mail.");
         }
       });
     });
