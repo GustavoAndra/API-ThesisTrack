@@ -59,7 +59,7 @@ async function buscarProjetosPublicosPorTitulo(titulo, tema) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const  projeto = rows;
+        const  projeto = [rows]
         return { success: true, data: projeto };
     } catch (error) {
         throw new Error('Erro ao buscar projetos públicos por título');
@@ -93,7 +93,7 @@ async function listarProjetoPorId(projetoId) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const  projeto = rows;
+        const  projeto = [rows]
        
         return { success: true, data: projeto };
     } catch (error) {
@@ -118,7 +118,7 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
-         const  projeto = rows;
+        const  projeto = [rows]
         return { success: true, data: projeto };
     } catch (error) {
         console.error(error);
@@ -137,8 +137,7 @@ async function listarProjetosPorCurso(cursoId) {
             return { success: false, message: 'Curso não correspondente' };
         }
         //const projetos = (rows);
-        const  projeto = rows;
-       
+        const  projeto = [rows]
         return { success: true, data: projeto };
     } catch (error) {
         console.error(error);
