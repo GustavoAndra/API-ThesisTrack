@@ -25,9 +25,9 @@ async function listarProjetosDoProfessor(professorId) {
           return { success: false, message: 'Não há projetos associados a este professor.' };
       }
 
-      const  projeto = [rows];
-       
-        return { success: true, data: projeto };
+      const  projeto = rows[0];
+      
+      return { success: true, data: projeto };
   } catch (error) {
       console.error(error);
       return { success: false, error: 'Erro ao buscar projetos associados ao professor' };
