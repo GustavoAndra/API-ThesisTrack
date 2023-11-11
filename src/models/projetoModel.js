@@ -21,7 +21,7 @@ async function criarProjeto({
 
     try {
         // Query para inserir um novo projeto 
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto,arquivo, publico]);
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico]);
 
         const projetoId = projetoResult.insertId;
 

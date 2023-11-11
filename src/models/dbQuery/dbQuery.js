@@ -93,7 +93,7 @@ LIMIT 10 `,
     LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-    WHERE projeto.publico = 1 AND projeto.id_projeto = ?
+    WHERE projeto.publico = 1 AND projeto.publico = 0 OR projeto.id_projeto = ?
     GROUP BY projeto.id_projeto; `,
   
   // Consulta para selecionar um projeto por ID de alunos com nomes dos autores e orientador
