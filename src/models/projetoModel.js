@@ -107,7 +107,7 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
     const connection = await connect(); 
     try {
         // Consulta para verificar se a pessoa está relacionada ao projeto
-        const [relacionadaRows] = await connection.query(dbQueries.VERIFICA_PESSOA_PROJETO, [projetoId, pessoaId]);
+        const [relacionadaRows] = await connection.query(dbQueries.VERIFICA_PESSOA_PROJETO, [projetoId, pessoaId, projetoId, pessoaId]);
 
         if (relacionadaRows.length === 0) {
             return { success: false, message: 'Você não tem permissão para acessar este projeto' };
@@ -118,8 +118,9 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
+        const  projeto = rows[0];
        
-        return { success: true, data: rows };
+        return { success: true, data: projeto };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };
