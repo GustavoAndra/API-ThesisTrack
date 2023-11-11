@@ -125,6 +125,7 @@ WHERE projeto.publico = 1
 AND aluno_curso.curso_id_curso = ?
 GROUP BY projeto.id_projeto;`,
   
+
   // Consulta para verificar se um projeto com determinado ID existe
   VERIFICA_PROJETO: 'SELECT 1 FROM projeto WHERE id_projeto = ?',
 

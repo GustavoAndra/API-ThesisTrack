@@ -25,11 +25,7 @@ async function listarProjetosDoProfessor(professorId) {
           return { success: false, message: 'Não há projetos associados a este professor.' };
       }
 
-      const projetos = rows.map(projeto => ({
-          ...projeto,
-          autores: JSON.parse(projeto.autores), // Convertendo a string JSON para objeto JavaScript
-          orientadores: JSON.parse(projeto.orientadores) // Convertendo a string JSON para objeto JavaScript
-      }));
+      const projetos = (rows);
 
       return { success: true, data: projetos };
   } catch (error) {

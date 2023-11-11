@@ -1,14 +1,6 @@
 const { connect } = require('../models/mysqlConnect'); 
 const dbQueries = require('../models/dbQuery/dbQuery');
 
-// Função para fazer o parse de autores e orientadores
-function parseAutoresEOrientadores(rows) {
-    return rows.map(projeto => ({
-        ...projeto,
-        autores: JSON.parse(projeto.autores),
-        orientadores: JSON.parse(projeto.orientadores)
-    }));
-}
 
 // Função para criar um novo projeto
 async function criarProjeto({
@@ -57,17 +49,17 @@ async function criarProjeto({
     }
 }
 
-async function buscarProjetosPublicosPorTitulo(titulo) {
+async function buscarProjetosPublicosPorTitulo(titulo, tema) {
     try {
         const connection = await connect(); // Conecta ao banco de dados
 
-        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_TITULO, [titulo]);
+        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_TITULO, [titulo, tema]);
         
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const projetos = parseAutoresEOrientadores(rows);
+        const projetos = (rows);
 
         return { success: true, data: projetos };
     } catch (error) {
@@ -84,7 +76,7 @@ async function listarProjetos(usuarioId) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const projetos = parseAutoresEOrientadores(rows);
+        const projetos = (rows);
 
         return { success: true, data: projetos };
     } catch (error) {
@@ -103,7 +95,7 @@ async function listarProjetoPorId(projetoId) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const projetos = parseAutoresEOrientadores(rows);
+        const projetos = (rows);
 
         return { success: true, data: projetos };
     } catch (error) {
@@ -129,7 +121,7 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
             return { success: false, message: 'Projeto não encontrado' };
         }
 
-        const projetos = parseAutoresEOrientadores(rows);
+        const projetos = (rows);
 
         return { success: true, data: projetos };
     } catch (error) {
@@ -149,7 +141,7 @@ async function listarProjetosPorCurso(cursoId) {
             return { success: false, message: 'Curso não correspondente' };
         }
 
-        const projetos = parseAutoresEOrientadores(rows);
+        const projetos = (rows);
 
         return { success: true, data: projetos };
     } catch (error) {
