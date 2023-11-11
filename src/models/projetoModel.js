@@ -61,7 +61,7 @@ async function buscarProjetosPublicosPorTitulo(titulo) {
     try {
         const connection = await connect(); // Conecta ao banco de dados
 
-        const [rows] = await connection.query(dbQueries.  SELECT_PROJETO_TITULO, [titulo]);
+        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_TITULO, [titulo]);
         
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
