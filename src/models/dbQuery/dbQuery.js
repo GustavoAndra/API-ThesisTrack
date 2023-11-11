@@ -64,7 +64,7 @@ module.exports = {
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
     WHERE projeto.publico = 1 AND projeto.publico= 0 OR projeto.id_projeto = ?
     GROUP BY projeto.id_projeto; `,
-    
+
     //Consulta para buscar o Título do projeto de uma pessoa que tem o projeto privado
     SELECT_PROJETO_TITULO: `SELECT 
     projeto.*,
@@ -94,22 +94,20 @@ LIMIT 10 `,
     FROM orientacao
     WHERE projeto_id_projeto = ? AND professor_pessoa_id_pessoa = ?;`,
   
-  
-  
-  
   // Consulta para selecionar um projeto por ID de alunos com nomes dos autores e orientador
   SELECT_PROJETO_POR_ID_ALUNO: `
-    SELECT 
-      projeto.*,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
-    FROM projeto
-    LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-    LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
-    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-    LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-    WHERE projeto.publico = 1 AND projeto.publico = 0 OR projeto.id_projeto = ?
-    GROUP BY projeto.id_projeto; `,
+  SELECT 
+  projeto.*,
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+FROM projeto
+LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+WHERE projeto.publico = 0 AND aluno_projeto.aluno_pessoa_id_pessoa = ?
+GROUP BY projeto.id_projeto;
+ `,
   
   SELECT_CURSO_ALUNO_POR_ID: `
   SELECT 
@@ -154,19 +152,21 @@ GROUP BY projeto.id_projeto;`,
     SELECT professor.pessoa_id_pessoa, pessoa.nome AS nome_professor
     FROM professor INNER JOIN pessoa ON professor.pessoa_id_pessoa = pessoa.id_pessoa`,
 
-  // Consulta para listar os professores orientadores de um projeto por id, que seja público
+  // Consulta para listar os professores orientadores de um projeto por id
   SELECT_PROFESSOR_ORIENTADOR_ID: `
-    SELECT 
-      projeto.*,
-      JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
-      JSON_ARRAYAGG(JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
-    FROM projeto
-    LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-    LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
-    LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
-    WHERE orientacao.professor_pessoa_id_pessoa = ? AND  projeto.publico = 1
-    GROUP BY projeto.id_projeto;`,
+  -- Consulta para listar os projetos públicos e privados do professor orientador
+  SELECT 
+    projeto.*,
+    JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
+    JSON_ARRAYAGG(JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
+  FROM projeto
+  LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+  LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+  LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+  LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
+  WHERE orientacao.professor_pessoa_id_pessoa = ? 
+  AND (projeto.publico = CASE WHEN orientacao.professor_pessoa_id_pessoa = ? THEN 0 ELSE 1 END)
+  GROUP BY projeto.id_projeto;`,
 
   /* ------------------------Professor Model (Final) ---------------------- */
 
