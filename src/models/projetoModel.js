@@ -93,8 +93,9 @@ async function listarProjetoPorId(projetoId) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
+        const  projeto = rows[0];
        
-        return { success: true, data: rows };
+        return { success: true, data: projeto };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Projeto não encontrado' };
