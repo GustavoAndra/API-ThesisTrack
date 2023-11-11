@@ -51,7 +51,19 @@ module.exports = {
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
     WHERE projeto.publico = 1
     GROUP BY projeto.id_projeto;`,
-
+    
+  SELECT_PROJETO_POR_ID: `
+    SELECT 
+      projeto.*,
+      JSON_ARRAYAGG( DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+      JSON_ARRAYAGG( DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+    FROM projeto
+    LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+    LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+    LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+    WHERE projeto.publico = 1 AND projeto.publico = 0 OR projeto.id_projeto =?
+    GROUP BY projeto.id_projeto;`,
 
     //Consulta para buscar o Título do projeto de uma pessoa que tem o projeto privado
     SELECT_PROJETO_TITULO: `SELECT 
@@ -82,18 +94,7 @@ LIMIT 10 `,
     FROM orientacao
     WHERE projeto_id_projeto = ? AND professor_pessoa_id_pessoa = ?;`,
   
-    SELECT_PROJETO_POR_ID: `
-    SELECT 
-      projeto.*,
-      JSON_ARRAYAGG(JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
-      JSON_ARRAYAGG(JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
-    FROM projeto
-    LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-    LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
-    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-    LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-    WHERE projeto.publico = 1 AND projeto.publico = 0 OR projeto.id_projeto =?
-    GROUP BY projeto.id_projeto;`,
+  
   
   
   // Consulta para selecionar um projeto por ID de alunos com nomes dos autores e orientador
