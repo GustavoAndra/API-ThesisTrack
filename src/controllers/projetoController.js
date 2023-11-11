@@ -47,9 +47,9 @@ async function criarProjeto(req, res) {
 //Controlador para buscar um projeto por título
 async function buscarProjetosPorTitulo(req, res) {
   const { titulo } = req.query;
-  const { tema } = req.query;
+  
   try {
-      const projetos = await projetoModel.buscarProjetosPublicosPorTitulo(titulo, tema);
+      const projetos = await projetoModel.buscarProjetosPublicosPorTitulo(titulo);
       
       res.status(200).json(projetos);
   } catch (error) {
