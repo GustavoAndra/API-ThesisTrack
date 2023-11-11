@@ -107,7 +107,7 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
     const connection = await connect(); 
     try {
         // Consulta para verificar se a pessoa está relacionada ao projeto
-        const [relacionadaRows] = await connection.query(dbQueries.VERIFICA_PESSOA_PROJETO, [projetoId, pessoaId, projetoId, pessoaId]);
+        const [relacionadaRows] = await connection.query(dbQueries.VERIFICA_PESSOA_PROJETO, [projetoId, pessoaId]);
 
         if (relacionadaRows.length === 0) {
             return { success: false, message: 'Você não tem permissão para acessar este projeto' };
