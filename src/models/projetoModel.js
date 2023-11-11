@@ -118,9 +118,9 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
-
-      
-        return { success: true, data: rows };
+        const  projeto = rows[0];
+       
+        return { success: true, data: projeto };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };
@@ -138,8 +138,9 @@ async function listarProjetosPorCurso(cursoId) {
             return { success: false, message: 'Curso não correspondente' };
         }
         //const projetos = (rows);
-    
-        return { success: true, data: rows };
+        const  projeto = rows[0];
+       
+        return { success: true, data: projeto };
     } catch (error) {
         console.error(error);
         return { success: false, message: 'Erro ao buscar projetos públicos por curso' };

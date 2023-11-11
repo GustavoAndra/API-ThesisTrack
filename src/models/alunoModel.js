@@ -25,7 +25,9 @@ async function listarProjetosDeAluno(alunoId) {
         // Executa a consulta para selecionar os projetos relacionados ao aluno com base no ID do aluno, que estejam públicos
         const [rows] = await connection.query(dbQueries.SELECT_ALUNO_PROJETO_ID, [alunoId]);
        
-        return { success: true, data: rows };
+        const  projeto = rows[0];
+       
+        return { success: true, data: projeto };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projetos do aluno' };
