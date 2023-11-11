@@ -118,9 +118,8 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não encontrado' };
         }
-        const  projeto = rows[0];
        
-        return { success: true, data: projeto };
+        return { success: true, data: rows };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };
