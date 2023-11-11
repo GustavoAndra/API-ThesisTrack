@@ -42,8 +42,8 @@ module.exports = {
   SELECT_PROJETOS: `
     SELECT 
       projeto.*,
-      JSON_ARRAYAGG(JSON_ARRAY(autor.id_pessoa, autor.nome)) AS autores,
-      JSON_ARRAYAGG(JSON_ARRAY(orientador.id_pessoa, orientador.nome)) AS orientadores
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
@@ -85,24 +85,23 @@ LIMIT 10 `,
     SELECT_PROJETO_POR_ID: `
     SELECT 
       projeto.*,
-      JSON_ARRAYAGG(JSON_ARRAY(autor.id_pessoa, autor.nome)) AS autores,
-      JSON_ARRAYAGG(JSON_ARRAY(orientador.id_pessoa, orientador.nome)) AS orientadores
+      JSON_ARRAYAGG(JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+      JSON_ARRAYAGG(JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-    WHERE projeto.publico = 1 AND projeto.publico = 0 OR projeto.id_projeto = ?
+    WHERE projeto.publico = 1 AND projeto.publico = 0 OR projeto.id_projeto =?
     GROUP BY projeto.id_projeto;`,
-  
   
   
   // Consulta para selecionar um projeto por ID de alunos com nomes dos autores e orientador
   SELECT_PROJETO_POR_ID_ALUNO: `
     SELECT 
       projeto.*,
-      JSON_ARRAYAGG(JSON_ARRAY(autor.id_pessoa, autor.nome)) AS autores,
-      JSON_ARRAYAGG(JSON_ARRAY(orientador.id_pessoa, orientador.nome)) AS orientadores
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
@@ -114,8 +113,8 @@ LIMIT 10 `,
   SELECT_CURSO_ALUNO_POR_ID: `
   SELECT 
   projeto.*,
-  JSON_ARRAYAGG(JSON_ARRAY(autor.id_pessoa, autor.nome)) AS autores,
-  JSON_ARRAYAGG(JSON_ARRAY(orientador.id_pessoa, orientador.nome)) AS orientadores
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
 FROM projeto
 JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
 JOIN aluno_curso ON aluno_projeto.aluno_pessoa_id_pessoa = aluno_curso.aluno_pessoa_id_pessoa
@@ -158,8 +157,8 @@ GROUP BY projeto.id_projeto;`,
   SELECT_PROFESSOR_ORIENTADOR_ID: `
     SELECT 
       projeto.*,
-      JSON_ARRAYAGG(JSON_ARRAY(aluno.id_pessoa, aluno.nome)) AS autores,
-      JSON_ARRAYAGG(JSON_ARRAY(professor.id_pessoa, professor.nome)) AS orientadores
+      JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
+      JSON_ARRAYAGG(JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
     FROM projeto
     LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
@@ -182,8 +181,8 @@ GROUP BY projeto.id_projeto;`,
   SELECT_ALUNO_PROJETO_ID: `
   SELECT 
     projeto.*,
-    JSON_ARRAYAGG(JSON_ARRAY('id', aluno.id_pessoa, 'nome', aluno.nome)) AS alunos,
-    JSON_ARRAYAGG(JSON_ARRAY('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
+    JSON_ARRAYAGG(JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS alunos,
+    JSON_ARRAYAGG(JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
   FROM projeto
   LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
   LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
