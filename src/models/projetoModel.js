@@ -59,9 +59,8 @@ async function buscarProjetosPublicosPorTitulo(titulo, tema) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-         const projetos = rows;
 
-        return { success: true, data: projetos };
+        return { success: true, data: rows };
     } catch (error) {
         throw new Error('Erro ao buscar projetos públicos por título');
     }
@@ -76,9 +75,8 @@ async function listarProjetos(usuarioId) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const projetos = rows;
-
-        return { success: true, data: projetos };
+       
+        return { success: true, data: rows };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Projeto não encontrado' };
@@ -95,9 +93,8 @@ async function listarProjetoPorId(projetoId) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
 
-        const projetos = rows;
-
-        return { success: true, data: projetos };
+       
+        return { success: true, data: rows };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Projeto não encontrado' };
@@ -121,9 +118,8 @@ async function listarProjetoPorIdDeAluno(projetoId, pessoaId) {
             return { success: false, message: 'Projeto não encontrado' };
         }
 
-        const projetos = rows;
-
-        return { success: true, data: projetos };
+      
+        return { success: true, data: rows };
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar projeto' };
@@ -140,11 +136,9 @@ async function listarProjetosPorCurso(cursoId) {
         if (rows.length === 0) {
             return { success: false, message: 'Curso não correspondente' };
         }
-
-        const projetos = rows;
         //const projetos = (rows);
-
-        return { success: true, data: projetos };
+    
+        return { success: true, data: rows };
     } catch (error) {
         console.error(error);
         return { success: false, message: 'Erro ao buscar projetos públicos por curso' };

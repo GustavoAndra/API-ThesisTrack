@@ -1,8 +1,6 @@
 const express = require('express');
 const userRouter = express.Router();
-const usarioRouter = express.Router();
 const userController = require('../controllers/userController');
-const authMiddleware = require('../middleware/auth'); 
 
 // Rota para obter informações do usuário
 userRouter.post('/', async (req, res, next) => {
