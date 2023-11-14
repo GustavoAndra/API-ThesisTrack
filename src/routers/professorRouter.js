@@ -7,7 +7,7 @@ const authMiddleware = require('../middleware/auth');
 router.get(`/listar/orientador`, authMiddleware.verifyToken, professorController.listarTodosProfessores);
 
 // Rota para listar os projetos dos orientadores (protegida por autenticação JWT)
-router.get(`/projeto/orientador/:id`, professorController.listarProjetosDoProfessor);
+router.get(`/projeto/orientador/:id`, authMiddleware.verifyToken, professorController.listarProjetosDoProfessor);
 
 // Rota para cadastrar um novo professor
 router.post(`/adiciona/orientador/`, professorController.cadastrarNovoProfessor);

@@ -187,6 +187,20 @@ GROUP BY projeto.id_projeto;`,
   WHERE projeto.publico = 1 AND projeto.publico= 0 OR projeto.id_projeto = ?
   GROUP BY projeto.id_projeto; `,
   
-    
+
+  SELECT_ALUNO_PROJETO_ID: `SELECT 
+  projeto.*,
+  GROUP_CONCAT(DISTINCT aluno.nome SEPARATOR ', ') AS alunos,
+  GROUP_CONCAT(DISTINCT orientador.nome SEPARATOR ', ') AS orientadores
+FROM projeto
+LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+WHERE projeto.id_projeto IN (
+  SELECT projeto_id_projeto FROM aluno_projeto WHERE aluno_pessoa_id_pessoa = ?
+)
+GROUP BY projeto.id_projeto;`,
+
   SELECT_CURSOS: ` SELECT nome FROM curso;`,
 };
