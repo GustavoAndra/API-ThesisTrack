@@ -1,15 +1,27 @@
 module.exports = {
-  /* ------------------------USER Model (Inicio) ---------------------- */
 
-  // Consulta para selecionar um usuário por email
-  SELECT_USER: `
-    SELECT p.id_pessoa as id, p.nome, p.email,
-    (SELECT COUNT(pessoa_id_pessoa) FROM professor WHERE pessoa_id_pessoa=p.id_pessoa) as professor,
-    (SELECT COUNT(pessoa_id_pessoa) FROM administrador WHERE pessoa_id_pessoa=p.id_pessoa) as admin,
-    u.senha as senha_hash
-    FROM usuario u
-    JOIN pessoa p ON p.id_pessoa=u.pessoa_id_pessoa
-    WHERE p.email = ?`,
+   INDEXES: `
+   CREATE INDEX idx_email ON pessoa (email);
+   CREATE INDEX idx_pessoa_id ON usuario (pessoa_id_pessoa);
+   CREATE INDEX idx_projeto_id ON aluno_projeto (projeto_id_projeto);
+   CREATE INDEX idx_aluno_id ON aluno_projeto (aluno_pessoa_id_pessoa);
+   CREATE INDEX idx_curso_id ON aluno_curso (curso_id_curso);`,
+
+ // Consulta para selecionar um usuário por email usando JOINs em vez de subconsultas
+ SELECT_USER: `
+   SELECT 
+     p.id_pessoa as id, 
+     p.nome, 
+     p.email,
+     COUNT(DISTINCT professor.pessoa_id_pessoa) as professor,
+     COUNT(DISTINCT administrador.pessoa_id_pessoa) as admin,
+     u.senha as senha_hash
+   FROM usuario u
+   JOIN pessoa p ON p.id_pessoa = u.pessoa_id_pessoa
+   LEFT JOIN professor ON p.id_pessoa = professor.pessoa_id_pessoa
+   LEFT JOIN administrador ON p.id_pessoa = administrador.pessoa_id_pessoa
+   WHERE p.email = ?
+   GROUP BY p.id_pessoa`,
 
   // Consulta para selecionar todos os usuários
   SELECT_ALL_USER: `
@@ -20,10 +32,6 @@ module.exports = {
 
   // Consulta para atualizar o perfil de um usuário por ID
   UPDATE_USER_PERFIL: 'UPDATE usuario SET perfil = ? WHERE pessoa_id_pessoa = ?',
-
-  /* ------------------------USER Model (Final) ---------------------- */
-
-  /* ------------------------Projeto Model (Inicio) ---------------------- */
 
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
@@ -62,27 +70,25 @@ module.exports = {
     LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
     LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
     LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-    WHERE projeto.publico = 1 AND projeto.publico= 0 OR projeto.id_projeto = ?
+    WHERE projeto.publico = 1 AND  projeto.id_projeto = ?
     GROUP BY projeto.id_projeto; `,
 
-    //Consulta para buscar o Título do projeto de uma pessoa que tem o projeto privado
-    SELECT_PROJETO_TITULO: `SELECT 
+    // Adicionando ORDER BY em SELECT_PROJETO_TITULO
+  SELECT_PROJETO_TITULO: `
+  SELECT 
     projeto.*,
-    JSON_ARRAYAGG(
-        JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)
-    ) AS autores,
-    JSON_ARRAYAGG(
-        JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)
-    ) AS orientadores
-FROM projeto
-LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
-LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
-WHERE projeto.titulo LIKE ?
-    AND projeto.publico = 1
-GROUP BY projeto.id_projeto
-LIMIT 10 `,
+    JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
+    JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
+  FROM projeto
+  LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+  LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+  LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+  LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
+  WHERE projeto.titulo LIKE ?
+  AND projeto.publico = 1
+  GROUP BY projeto.id_projeto
+  ORDER BY projeto.id_projeto
+  LIMIT 10`,
 
   // Consulta para verificar se a pessoa está relacionada a um projeto
   VERIFICA_PESSOA_PROJETO: `
@@ -94,7 +100,6 @@ LIMIT 10 `,
     FROM orientacao
     WHERE projeto_id_projeto = ? AND professor_pessoa_id_pessoa = ?;`,
   
-  // Consulta para selecionar um projeto por ID de alunos com nomes dos autores e orientador
  // Lista os projetos que os alunos estão associados por id
  SELECT_ALUNO_PROJETO_ID: `SELECT 
  projeto.*,
@@ -144,10 +149,6 @@ GROUP BY projeto.id_projeto;`,
   // Consulta para excluir um projeto por ID
   DELETE_PROJETO: 'DELETE FROM projeto WHERE id_projeto = ?',
 
-  /* ------------------------Projeto Model (Final) ---------------------- */
-
-  /* ------------------------Professor Model (Inicio) ---------------------- */
-
   // Consulta para listar os professores orientadores
   SELECT_PROFESSOR: `
     SELECT professor.pessoa_id_pessoa, pessoa.nome AS nome_professor
@@ -167,35 +168,27 @@ GROUP BY projeto.id_projeto;`,
     WHERE orientacao.professor_pessoa_id_pessoa = ?
     GROUP BY projeto.id_projeto;`,
 
-  /* ------------------------Professor Model (Final) ---------------------- */
-
-  /* ------------------------Aluno Model (Inicio) ---------------------- */
-
   // Consulta para listar os alunos
   SELECT_ALUNO: `
     SELECT aluno.pessoa_id_pessoa, pessoa.nome AS nome_aluno,
     aluno.matricula AS matricula_aluno FROM aluno
     INNER JOIN pessoa ON aluno.pessoa_id_pessoa = pessoa.id_pessoa; `,
 
-  // Consulta para selecionar um projeto por ID de alunos com nomes dos autores e orientador
-  SELECT_PROJETO_POR_ID_ALUNO: `
-  SELECT 
-  projeto.*,
-  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
-  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
-FROM projeto
-LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
-LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-WHERE aluno_projeto.aluno_pessoa_id_pessoa = ? OR projeto.publico = 1
-GROUP BY projeto.id_projeto;  `,
-
-  /* ------------------------Aluno Model (Final) ---------------------- */
-
-  /*-------------------------Curso Model (Inicio) -----------------*/
-
+    SELECT_PROJETO_POR_ID_PESSOA: `
+      SELECT 
+        projeto.*,
+        JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+        JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+      FROM projeto
+      LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+      LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+      LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+      LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+      WHERE 
+      aluno_projeto.aluno_pessoa_id_pessoa = ? 
+      OR orientacao.professor_pessoa_id_pessoa = ? 
+      OR projeto.publico IN (0, 1)`,
+  
+    
   SELECT_CURSOS: ` SELECT nome FROM curso;`,
-
-  /*-------------------------Curso Model (Final) -----------------*/
 };
