@@ -7,7 +7,7 @@ module.exports = {
    CREATE INDEX idx_aluno_id ON aluno_projeto (aluno_pessoa_id_pessoa);
    CREATE INDEX idx_curso_id ON aluno_curso (curso_id_curso);`,
 
- // Consulta para selecionar um usuário por email usando JOINs em vez de subconsultas
+ // Consulta para selecionar um usuário por email usando 
  SELECT_USER: `
    SELECT 
      p.id_pessoa as id, 
@@ -175,19 +175,17 @@ GROUP BY projeto.id_projeto;`,
     INNER JOIN pessoa ON aluno.pessoa_id_pessoa = pessoa.id_pessoa; `,
 
     SELECT_PROJETO_POR_ID_PESSOA: `
-      SELECT 
-        projeto.*,
-        JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
-        JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
-      FROM projeto
-      LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-      LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
-      LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-      LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-      WHERE 
-      aluno_projeto.aluno_pessoa_id_pessoa = ? 
-      OR orientacao.professor_pessoa_id_pessoa = ? 
-      OR projeto.publico IN (0, 1)`,
+    SELECT 
+    projeto.*,
+    JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+    JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+  FROM projeto
+  LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+  LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+  LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+  LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+  WHERE projeto.publico = 1 AND projeto.publico= 0 OR projeto.id_projeto = ?
+  GROUP BY projeto.id_projeto; `,
   
     
   SELECT_CURSOS: ` SELECT nome FROM curso;`,
