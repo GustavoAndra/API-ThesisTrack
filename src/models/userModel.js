@@ -150,11 +150,57 @@ const sendVerificationCode = async (email, result) => {
       from: process.env.EMAIL,
       to: email,
       subject: "Código de verificação",
-      text: `Seu código de verificação é ${verificationCode}. Use-o para alterar sua senha, email ou nome. Este código é válido por ${verificationCodeValidityMinutes} minutos.`,
+      html: `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f5f5f5;
+                color: #333;
+              }
+              .container {
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+              }
+              h1 {
+                color: #1DA1F2;
+              }
+              p {
+                margin-bottom: 15px;
+                color: #000;
+              }
+              .code-container {
+                border: 2px solid #1DA1F2;
+                border-radius: 10px;
+                padding: 10px;
+                text-align: center;
+                font-size: 28px;
+                color: #1DA1F2;
+                background-color: #fff;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Redefinição de senha:</h1>
+              <p>Prezado(a) Usuário,</p>
+              <p>Você solicitou um código de verificação para alterar sua senha. Use o código abaixo:</p>
+              <div class="code-container">${verificationCode}</div>
+              <p>O código é válido por ${verificationCodeValidityMinutes} minutos.</p>
+              <p>Atenciosamente,<br>Ferramenta de Catalogação de Projeto</p>
+            </div>
+          </body>
+        </html>
+      `,
     };
-
+    
     return new Promise((resolve, reject) => {
-      transporter.sendMail(mailOptions, (error, info) => {
+      transporter.sendMail(mailOptions, (error) => {
         if (error) {
           console.log(error);
           reject(error);
@@ -192,8 +238,9 @@ const isVerificationCodeExpired = () => {
 };
 
 // Função para atualizar a senha, email ou nome do usuário com um código de verificação
+// Função para atualizar a senha ou nome do usuário com um código de verificação
 const updateInfoWithVerificationCode = async (data) => {
-  const { email, novaSenha, confirmSenha, newEmail, newNome, codigo, updateType } = data;
+  const { email, novaSenha, confirmSenha, newNome, codigo, updateType } = data;
   const connection = await connect();
 
   try {
@@ -232,16 +279,13 @@ const updateInfoWithVerificationCode = async (data) => {
         "UPDATE usuario SET senha = ? WHERE pessoa_id_pessoa = ?",
         [hashedPassword, pessoaId]
       );
-    } else if (updateType === "email") {
-      await connection.query(
-        "UPDATE pessoa SET email = ? WHERE id_pessoa = ?",
-        [newEmail, pessoaId]
-      );
     } else if (updateType === "nome") {
       await connection.query(
         "UPDATE pessoa SET nome = ? WHERE id_pessoa = ?",
         [newNome, pessoaId]
       );
+    } else {
+      throw new Error("Operação não suportada. Apenas 'senha' e 'nome' são permitidos.");
     }
 
     await connection.query(
@@ -258,5 +302,6 @@ const updateInfoWithVerificationCode = async (data) => {
     throw new Error("Erro ao atualizar informações do usuário.");
   }
 };
+
 
 module.exports = {get, login, verifyJWT, sendVerificationCode, updateInfoWithVerificationCode};

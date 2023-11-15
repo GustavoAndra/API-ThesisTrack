@@ -10,7 +10,7 @@ async function listarAlunos() {
         // Executa a consulta para selecionar todos os alunos
         const [rows] = await connection.query(dbQueries.SELECT_ALUNO);
 
-        return { success: true, data: rows }; 
+        return { success: true, data: rows }; // Retorna os resultados
     } catch (error) {
         console.error(error);
         return { success: false, error: 'Erro ao buscar alunos' };
@@ -25,7 +25,6 @@ async function listarProjetosDeAluno(alunoId) {
         // Executa a consulta para selecionar os projetos relacionados ao aluno com base no ID do aluno, que estejam públicos
         const [rows] = await connection.query(dbQueries.SELECT_ALUNO_PROJETO_ID, [alunoId]);
        
-        //Voltar aqui
         return { success: true, data: rows };
     } catch (error) {
         console.error(error);
@@ -34,16 +33,17 @@ async function listarProjetosDeAluno(alunoId) {
 }
 
 // Função para cadastrar um aluno
-async function  cadastrarAluno (data, cursoId, matricula) {
+async function cadastrarAluno(data, cursoId, matricula) {
     const { nome, email, senha } = data;
     const connection = await connect();
+
     try {
         await connection.beginTransaction();
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(senha, saltRounds);
 
-        //Verificar se o e-mail já existe na tabela pessoa
+        // Verificar se o e-mail já existe na tabela pessoa
         const checkEmailQuery = 'SELECT id_pessoa FROM pessoa WHERE email = ?';
         const [emailCheckResult] = await connection.query(checkEmailQuery, [email]);
 
@@ -51,7 +51,7 @@ async function  cadastrarAluno (data, cursoId, matricula) {
             return { success: false, message: 'O e-mail já está em uso' };
         }
 
-        //Verificar se a matrícula já está cadastrada na tabela aluno
+        // Verificar se a matrícula já está cadastrada na tabela aluno
         const checkMatriculaQuery = 'SELECT pessoa_id_pessoa FROM aluno WHERE matricula = ?';
         const [matriculaCheckResult] = await connection.query(checkMatriculaQuery, [matricula]);
 
@@ -59,16 +59,16 @@ async function  cadastrarAluno (data, cursoId, matricula) {
             return { success: false, message: 'A matrícula já está em uso' };
         }
 
-        //Inserir os dados na tabela pessoa
+        // Inserir os dados na tabela pessoa
         const pessoaInsertSql = 'INSERT INTO pessoa (nome, email) VALUES (?, ?)';
         const [pessoaInsertResult] = await connection.query(pessoaInsertSql, [nome, email]);
         const pessoaId = pessoaInsertResult.insertId;
 
-        //Inserir os dados na tabela usuario (com a senha criptografada)
+        // Inserir os dados na tabela usuario (com a senha criptografada)
         const usuarioInsertSql = 'INSERT INTO usuario (senha, pessoa_id_pessoa, perfil) VALUES (?, ?, ?)';
         await connection.query(usuarioInsertSql, [hashedPassword, pessoaId, 'aluno']);
 
-        //Inserir os dados na tabela aluno (incluindo a matrícula)
+        // Inserir os dados na tabela aluno (incluindo a matrícula)
         const alunoInsertSql = 'INSERT INTO aluno (pessoa_id_pessoa, matricula) VALUES (?, ?)';
         await connection.query(alunoInsertSql, [pessoaId, matricula]);
 

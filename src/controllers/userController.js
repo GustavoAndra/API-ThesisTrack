@@ -44,12 +44,12 @@ exports.sendVerificationCode = async (req, res) => {
 
 // Controller para trocar a senha do usuário com código de verificação
 exports.updateProfile = async (req, res) => {
-  const { email, novaSenha, confirmSenha, newEmail, newNome, codigo, updateType } = req.body;
+  const {  email, novaSenha, confirmSenha, newNome, codigo, updateType } = req.body;
 
   try {
     // Chame a função do modelo para atualizar a senha
     const result = await userModel.updateInfoWithVerificationCode({
-      email, novaSenha, confirmSenha, newEmail, newNome, codigo, updateType
+      email, novaSenha, confirmSenha, newNome, codigo, updateType
     });
 
     // Retorne uma resposta de sucesso
