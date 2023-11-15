@@ -240,7 +240,6 @@ const isVerificationCodeExpired = () => {
   return timeDifference >= verificationCodeValidityMinutes;
 };
 
-// Função para atualizar a senha, email ou nome do usuário com um código de verificação
 // Função para atualizar a senha ou nome do usuário com um código de verificação
 const updateInfoWithVerificationCode = async (data) => {
   const { email, novaSenha, confirmSenha, newNome, codigo, updateType } = data;
@@ -305,6 +304,5 @@ const updateInfoWithVerificationCode = async (data) => {
     throw new Error("Erro ao atualizar informações do usuário.");
   }
 };
-
 
 module.exports = {get, login, verifyJWT, sendVerificationCode, updateInfoWithVerificationCode};

@@ -13,6 +13,7 @@ async function criarProjeto({
     url_projeto,
     arquivo,
     publico, 
+    logo_projeto,
     alunos,
     professores,
     ano_publicacao 
@@ -21,7 +22,7 @@ async function criarProjeto({
 
     try {
         // Query para inserir um novo projeto 
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico, ano_publicacao]);
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico, logo_projeto, ano_publicacao]);
 
         const projetoId = projetoResult.insertId;
 
@@ -177,8 +178,10 @@ async function atualizarProjeto(projetoId, {
     url_projeto,
     arquivo,
     publico, 
+    logo_projeto,
     alunos,
-    professores
+    professores,
+    ano_publicacao 
 }) {
     const connection = await connect(); // Conecta ao banco de dados
     await connection.beginTransaction(); // Inicia uma transação no banco
@@ -193,7 +196,21 @@ async function atualizarProjeto(projetoId, {
         }
 
         // Query para atualizar um projeto por ID
-        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico, projetoId]);
+        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, 
+            tema, 
+            problema, 
+            resumo, 
+            abstract, 
+            objetivo_geral, 
+            objetivo_especifico,
+            url_projeto,
+            arquivo,
+            publico, 
+            logo_projeto,
+            alunos,
+            professores,
+            ano_publicacao,
+            projetoId]);
 
         // Verifica se existem alunos associados ao projeto e atualiza no banco
         if (alunos && alunos.length > 0) {

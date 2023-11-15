@@ -22,6 +22,7 @@ async function criarProjeto(req, res) {
     url_projeto,
     arquivo,
     publico, 
+    logo_projeto,
     alunos,
     professores,
     ano_publicacao 
@@ -38,6 +39,7 @@ async function criarProjeto(req, res) {
     url_projeto,
     arquivo,
     publico, 
+    logo_projeto,
     alunos,
     professores,
     ano_publicacao 
@@ -132,8 +134,10 @@ async function atualizarProjeto(req, res) {
     url_projeto,
     arquivo,
     publico, 
+    logo_projeto,
     alunos,
-    professores
+    professores,
+    ano_publicacao 
   } = req.body;
 
   const result = await projetoModel.atualizarProjeto(projetoId, {
@@ -147,8 +151,10 @@ async function atualizarProjeto(req, res) {
     url_projeto,
     arquivo,
     publico, 
+    logo_projeto,
     alunos,
-    professores
+    professores,
+    ano_publicacao 
   });
 
   handleResponse(res, result);
