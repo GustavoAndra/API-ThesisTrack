@@ -23,7 +23,6 @@ const login = async (data) => {
 
   try {
     const sql = dbQueries.SELECT_USER
-    
     const [results] = await connection.query(sql, [email]);
 
     let result = null;
@@ -35,7 +34,7 @@ const login = async (data) => {
 
       if (senhaCorrespondente) {
         const id = results[0].id;
-        const token = jwt.sign({ id }, process.env.JWT_SECRET, {expiresIn: 28800});
+        const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: 28800 });
 
         console.log("Fez login e gerou token!");
 
@@ -53,6 +52,9 @@ const login = async (data) => {
         const updateSql = dbQueries.UPDATE_USER_PERFIL;
         console.log(updateSql);
         await connection.query(updateSql, [perfil.toString(), id]);
+
+        // Remova a senha antes de retornar os resultados
+        delete results[0].senha_hash;
 
         result = { auth: true, token, user: results[0] };
       } else {
