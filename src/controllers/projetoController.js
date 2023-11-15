@@ -101,7 +101,7 @@ async function listarProjetoPorIdDaPessoa(req, res) {
 
 
 // Controlador para listar projetos relacionados a um curso
-async function listarProjetosPorCurso(req, res) {
+async function listarProjetosPorCurso(req, res)  {
   const cursoId = req.params.id;
 
   try {

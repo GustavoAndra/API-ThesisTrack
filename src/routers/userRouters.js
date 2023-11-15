@@ -20,7 +20,7 @@ userRouter.post("/reset-password/request", async (req, res, next) => {
 });
 
 // Rota para atualizar o perfil do usuário (nome, email ou senha) 
-userRouter.put("/user/update-profile/:id", async (req, res, next) => {
+userRouter.put("/user/update-profile/", async (req, res, next) => {
   await userController.updateProfile(req, res);
 });
 
