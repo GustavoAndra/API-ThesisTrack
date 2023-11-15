@@ -23,7 +23,8 @@ async function criarProjeto(req, res) {
     arquivo,
     publico, 
     alunos,
-    professores
+    professores,
+    ano_publicacao 
   } = req.body;
 
   const result = await projetoModel.criarProjeto({
@@ -38,7 +39,8 @@ async function criarProjeto(req, res) {
     arquivo,
     publico, 
     alunos,
-    professores
+    professores,
+    ano_publicacao 
   });
 
   handleResponse(res, result);
@@ -55,6 +57,20 @@ async function buscarProjetosPorTitulo(req, res) {
   } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Erro ao buscar projetos por título' });
+  }
+}
+
+//Controlador para buscar um projeto por ano de publicação
+async function buscarProjetosPublicosPorAno(req, res) {
+  const { ano } = req.query;
+  
+  try {
+      const projetos = await projetoModel.buscarProjetosPublicosPorAno(ano);
+      
+      res.status(200).json(projetos);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erro ao buscar projetos por ano específico' });
   }
 }
 
@@ -82,6 +98,7 @@ async function listarProjetoPorIdDaPessoa(req, res) {
 
   handleResponse(res, result);
 }
+
 
 // Controlador para listar projetos relacionados a um curso
 async function listarProjetosPorCurso(req, res) {
@@ -147,6 +164,7 @@ async function deletarProjeto(req, res) {
 module.exports = {
   criarProjeto,
   buscarProjetosPorTitulo,
+  buscarProjetosPublicosPorAno,
   listarProjetos,
   listarProjetoPorId,
   listarProjetoPorIdDaPessoa,

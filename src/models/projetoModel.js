@@ -1,7 +1,6 @@
 const { connect } = require('../models/mysqlConnect'); 
 const dbQueries = require('../models/dbQuery/dbQuery');
 
-
 // Função para criar um novo projeto
 async function criarProjeto({
     titulo, 
@@ -15,13 +14,14 @@ async function criarProjeto({
     arquivo,
     publico, 
     alunos,
-    professores
+    professores,
+    ano_publicacao 
 }) {
     const connection = await connect(); // Conecta ao banco de dados
 
     try {
         // Query para inserir um novo projeto 
-        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico]);
+        const [projetoResult] = await connection.query(dbQueries.INSERT_PROJETO, [titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico, ano_publicacao]);
 
         const projetoId = projetoResult.insertId;
 
@@ -49,6 +49,7 @@ async function criarProjeto({
     }
 }
 
+
 async function buscarProjetosPublicosPorTitulo(titulo, tema) {
     try {
         const connection = await connect(); // Conecta ao banco de dados
@@ -63,6 +64,23 @@ async function buscarProjetosPublicosPorTitulo(titulo, tema) {
         return { success: true, data: rows };
     } catch (error) {
         throw new Error('Erro ao buscar projetos públicos por título');
+    }
+}
+
+//Função para buscar um projeto pelo ano de publicação do usuário
+async function buscarProjetosPublicosPorAno(ano) {
+    try {
+        const connection = await connect(); // Conecta ao banco de dados
+
+        const [rows] = await connection.query(dbQueries.SELECT_PROJETO_ANO_PUBLICACAO, [ano]);
+        
+        if (rows.length === 0) {
+            return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
+        }
+
+        return { success: true, data: rows };
+    } catch (error) {
+        throw new Error('Erro ao buscar projetos públicos por ano de sua publicação');
     }
 }
 
@@ -252,6 +270,7 @@ module.exports = {
     buscarProjetosPublicosPorTitulo,
     listarProjetos,
     listarProjetoPorId,
+    buscarProjetosPublicosPorAno,
     listarProjetoPorIdDaPessoa,
     listarProjetosPorCurso,
     atualizarProjeto,

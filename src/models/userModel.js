@@ -22,7 +22,8 @@ const login = async (data) => {
   const connection = await connect(); 
 
   try {
-    const sql = dbQueries.SELECT_USER
+    const sql = dbQueries.SELECT_USER;
+
     const [results] = await connection.query(sql, [email]);
 
     let result = null;

@@ -38,8 +38,8 @@ module.exports = {
 
   // Consulta para inserir um novo projeto
   INSERT_PROJETO: `
-    INSERT INTO projeto (titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    INSERT INTO projeto (titulo, tema, problema, resumo, abstract, objetivo_geral, objetivo_especifico, url_projeto, arquivo, publico, ano_publicacao)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 
   // Consulta para inserir um aluno associado a um projeto
   INSERT_ALUNO_PROJETO: 'INSERT INTO aluno_projeto (aluno_pessoa_id_pessoa, projeto_id_projeto) VALUES (?, ?)',
@@ -93,6 +93,22 @@ module.exports = {
     GROUP BY projeto.id_projeto
     ORDER BY projeto.id_projeto
     LIMIT 10`,
+
+     // Consulta para listar projetos com um título específico
+SELECT_PROJETO_ANO_PUBLICACAO: `
+SELECT 
+  projeto.*,
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', aluno.id_pessoa, 'nome', aluno.nome)) AS autores,
+  JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', professor.id_pessoa, 'nome', professor.nome)) AS orientadores
+FROM projeto
+LEFT JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS aluno ON aluno_projeto.aluno_pessoa_id_pessoa = aluno.id_pessoa
+LEFT JOIN pessoa AS professor ON orientacao.professor_pessoa_id_pessoa = professor.id_pessoa
+WHERE projeto.ano_publicacao = ?
+AND projeto.publico = 1
+GROUP BY projeto.id_projeto`,
+
 
   // Consulta para verificar se a pessoa está relacionada a um projeto
   VERIFICA_PESSOA_PROJETO: `

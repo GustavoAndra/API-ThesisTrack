@@ -30,4 +30,7 @@ router.delete(`${basePath}/delete/:id`, authMiddleware.verifyToken, projetoContr
 //Rota para buscar um projeto pelo título dele
 router.get('/buscar-projetos/', projetoController.buscarProjetosPorTitulo);
 
+//Rota para buscar um projeto pelo título dele
+router.get('/buscar-projetos/ano/', projetoController.buscarProjetosPublicosPorAno);
+
 module.exports = router;
