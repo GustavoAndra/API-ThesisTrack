@@ -15,13 +15,11 @@ module.exports = {
       p.nome, 
       p.email,
       COUNT(DISTINCT professor.pessoa_id_pessoa) AS professor,
-      COUNT(DISTINCT aluno.pessoa_id_pessoa) AS aluno,
       COUNT(DISTINCT administrador.pessoa_id_pessoa) AS admin,
       u.senha AS senha_hash
     FROM usuario u
     JOIN pessoa p ON p.id_pessoa = u.pessoa_id_pessoa
     LEFT JOIN professor ON p.id_pessoa = professor.pessoa_id_pessoa
-    LEFT JOIN aluno ON p.id_pessoa = aluno.pessoa_id_pessoa
     LEFT JOIN administrador ON p.id_pessoa = administrador.pessoa_id_pessoa
     WHERE p.email = ?
     GROUP BY p.id_pessoa`,
