@@ -15,11 +15,10 @@ const get = async () => {
   }
 };
 
-// Função para realizar o login do usuário
 const login = async (data) => {
   const { email, senha } = data;
 
-  const connection = await connect(); 
+  const connection = await connect();
 
   try {
     const sql = dbQueries.SELECT_USER;
@@ -40,19 +39,22 @@ const login = async (data) => {
         console.log("Fez login e gerou token!");
 
         const perfil = [];
+
         if (results[0].professor > 0) {
           perfil.push("professor");
         }
-        if (results[0].admin > 0) {
-          perfil.push("admin");
-        }
 
-        results[0].perfil = perfil;
+        if (results[0].aluno > 0) {
+          perfil.push("aluno");
+        }
 
         // Atualiza o perfil do usuário no banco de dados;
         const updateSql = dbQueries.UPDATE_USER_PERFIL;
         console.log(updateSql);
         await connection.query(updateSql, [perfil.toString(), id]);
+
+        // Adicione o perfil ao objeto de resultados antes de remover a senha
+        results[0].perfil = perfil;
 
         // Remova a senha antes de retornar os resultados
         delete results[0].senha_hash;
@@ -69,6 +71,8 @@ const login = async (data) => {
     throw error;
   }
 };
+
+
 
 // Função para verificar a validade do token JWT
 const verifyJWT = async (token, perfil) => {
