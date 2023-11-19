@@ -5,8 +5,7 @@ module.exports = {
     CREATE INDEX idx_pessoa_id ON usuario (pessoa_id_pessoa);
     CREATE INDEX idx_projeto_id ON aluno_projeto (projeto_id_projeto);
     CREATE INDEX idx_aluno_id ON aluno_projeto (aluno_pessoa_id_pessoa);
-    CREATE INDEX idx_curso_id ON aluno_curso (curso_id_curso);
-  `,
+    CREATE INDEX idx_curso_id ON aluno_curso (curso_id_curso);`,
 
   // Consulta para selecionar um usuário por email
   SELECT_USER: `
@@ -156,11 +155,21 @@ GROUP BY projeto.id_projeto`,
   VERIFICA_PROJETO: 'SELECT 1 FROM projeto WHERE id_projeto = ?',
 
   // Consulta para atualizar um projeto por ID
-  UPDATE_PROJETO: ` 
+  UPDATE_PROJETO: `
   UPDATE projeto SET 
-    titulo=?, tema=?, problema=?, resumo=?, abstract=?, objetivo_geral=?, objetivo_especifico=?, url_projeto=?, logo_projeto=?, ano_publicacao=?, arquivo=?, publico=?
-  WHERE id_projeto = ?; `,
-
+  titulo=?, 
+  tema=?, 
+  problema=?, 
+  resumo=?, 
+  abstract=?, 
+  objetivo_geral=?, 
+  objetivo_especifico=?,
+  url_projeto=?,
+  arquivo=?,
+  publico=?, 
+  logo_projeto=?,
+  ano_publicacao=?
+WHERE id_projeto = ?; `,
 
   // Consulta para excluir todos os alunos associados a um projeto
   DELETE_ALUNO_PROJETO: 'DELETE FROM aluno_projeto WHERE projeto_id_projeto = ?',

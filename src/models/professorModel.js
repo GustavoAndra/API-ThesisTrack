@@ -71,4 +71,8 @@ async function cadastrarNovoProfessor(nome, email, senha) {
     }
 }
 
-module.exports = { listarProfessores, listarProjetosDoProfessor, cadastrarNovoProfessor };
+module.exports = { 
+    listarProfessores,
+    listarProjetosDoProfessor,
+    cadastrarNovoProfessor 
+};

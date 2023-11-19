@@ -184,7 +184,6 @@ async function atualizarProjeto(projetoId, {
     ano_publicacao 
 }) {
     const connection = await connect(); // Conecta ao banco de dados
-    await connection.beginTransaction(); // Inicia uma transação no banco
 
     try {
         // Verifica se o projeto com o projetoId existe no banco de dados
@@ -195,8 +194,8 @@ async function atualizarProjeto(projetoId, {
             throw new Error('Projeto não encontrado');
         }
 
-        // Query para atualizar um projeto por ID
-        await connection.query(dbQueries.UPDATE_PROJETO, [titulo, 
+        await connection.query(dbQueries.UPDATE_PROJETO, [
+            titulo, 
             tema, 
             problema, 
             resumo, 
@@ -207,10 +206,9 @@ async function atualizarProjeto(projetoId, {
             arquivo,
             publico, 
             logo_projeto,
-            alunos,
-            professores,
             ano_publicacao,
-            projetoId]);
+            projetoId
+        ]);
 
         // Verifica se existem alunos associados ao projeto e atualiza no banco
         if (alunos && alunos.length > 0) {
@@ -230,12 +228,8 @@ async function atualizarProjeto(projetoId, {
             }
         }
 
-        await connection.commit(); // Confirma a transação no banco de dados
-
         return { success: true, message: 'Projeto atualizado com sucesso!' };
     } catch (error) {
-        await connection.rollback(); // Reverte a transação em caso de erro
-
         console.error(error);
 
         // Verifica se a exceção foi lançada devido ao projeto não encontrado
@@ -244,8 +238,12 @@ async function atualizarProjeto(projetoId, {
         }
 
         return { success: false, message: 'Erro ao atualizar o projeto.' };
+    } finally {
+        // Fecha a conexão no final
+        await connection.end();
     }
 }
+
 
 // Função para deletar um projeto pelo ID
 async function deletarProjeto(projetoId) {

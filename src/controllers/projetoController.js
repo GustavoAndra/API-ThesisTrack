@@ -156,7 +156,6 @@ async function atualizarProjeto(req, res) {
     professores,
     ano_publicacao 
   });
-
   handleResponse(res, result);
 }
 
