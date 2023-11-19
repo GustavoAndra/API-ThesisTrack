@@ -238,9 +238,6 @@ async function atualizarProjeto(projetoId, {
         }
 
         return { success: false, message: 'Erro ao atualizar o projeto.' };
-    } finally {
-        // Fecha a conexão no final
-        await connection.end();
     }
 }
 
