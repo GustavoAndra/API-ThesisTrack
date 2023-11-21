@@ -7,6 +7,20 @@ module.exports = {
     CREATE INDEX idx_aluno_id ON aluno_projeto (aluno_pessoa_id_pessoa);
     CREATE INDEX idx_curso_id ON aluno_curso (curso_id_curso);`,
 
+    SELECT_EMAIL_BY_PROFESSOR_ID: `
+    SELECT pessoa.email
+    FROM pessoa
+    JOIN professor ON pessoa.id_pessoa = professor.pessoa_id_pessoa
+    WHERE professor.pessoa_id_pessoa = ?;
+  `,
+  
+  // Obter nomes dos estudantes associados ao projeto por ID do projeto
+SELECT_NAMES_BY_PROJECT_ID: `
+SELECT pessoa.nome
+FROM pessoa
+JOIN aluno_projeto ON pessoa.id_pessoa = aluno_projeto.aluno_pessoa_id_pessoa
+WHERE aluno_projeto.projeto_id_projeto = ?;
+`,
   // Consulta para selecionar um usuário por email
   SELECT_USER: `
     SELECT 
@@ -91,12 +105,9 @@ SELECT_PROJETO_TITULO: `
   AND projeto.publico = 1
   GROUP BY projeto.id_projeto
   ORDER BY projeto.id_projeto
-  LIMIT 10
 `,
 
-
-
-     // Consulta para listar projetos com um título específico
+// Consulta para listar projetos com o ano de publicação
 SELECT_PROJETO_ANO_PUBLICACAO: `
 SELECT 
   projeto.*,

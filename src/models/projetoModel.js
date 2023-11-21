@@ -1,7 +1,8 @@
 const { connect } = require('../models/mysqlConnect'); 
 const dbQueries = require('../models/dbQuery/dbQuery');
+const nodemailer = require('nodemailer');
 
-// Função para criar um novo projeto
+// Função para criar um novo projeto e enviar e-mail para o professor
 async function criarProjeto({
     titulo, 
     tema, 
@@ -37,6 +38,45 @@ async function criarProjeto({
         if (professores && professores.length > 0) {
             for (const professor of professores) {
                 await connection.query(dbQueries.INSERT_PROFESSOR_PROJETO, [projetoId, professor.id]);
+
+                // Consulta para obter o e-mail e nome do professor
+                const [professorData] = await connection.query(dbQueries.SELECT_EMAIL_BY_PROFESSOR_ID, [professor.id]);
+
+                if (professorData.length > 0 && professorData[0].email) {
+                    const professorEmail = professorData[0].email;
+                    const professorNome = professorData[0].nome;
+
+                    // Consulta para obter os nomes dos estudantes associados ao projeto
+                    const [alunosData] = await connection.query(dbQueries.SELECT_NAMES_BY_PROJECT_ID, [projetoId]);
+
+                    if (alunosData.length > 0) {
+                        // Extrai os nomes dos estudantes
+                        const nomesAlunos = alunosData.map(aluno => aluno.nome);
+
+                        // Verifica o número de autores
+                        let autoresString = '';
+                        if (nomesAlunos.length === 1) {
+                            autoresString = nomesAlunos[0];
+                        } else if (nomesAlunos.length === 2) {
+                            autoresString = `${nomesAlunos[0]} e ${nomesAlunos[1]}`;
+                        } else {
+                            autoresString = `${nomesAlunos.slice(0, -1).join(', ')}, e ${nomesAlunos.slice(-1)}`;
+                        }
+
+                        // Envia e-mail para o professor
+                        try {
+                            const emailContent = `Você foi selecionado como orientador do projeto "${titulo}". Dos autores: ${autoresString}`;
+                            await enviarEmail(professorEmail, 'Notificação de Orientação de Projeto', emailContent);
+                            console.log(`E-mail enviado para o professor ${professorNome}`);
+                        } catch (emailError) {
+                            console.error(`Erro ao enviar e-mail para o professor ${professorNome}:`, emailError);
+                        }
+                    } else {
+                        console.error(`Nenhum aluno encontrado para o projeto com ID ${projetoId}`);
+                    }
+                } else {
+                    console.error(`E-mail não encontrado para o professor com ID ${professor.id}`);
+                }
             }
         }
 
@@ -49,6 +89,88 @@ async function criarProjeto({
         return { success: false, message: 'Erro ao criar o projeto.' };
     }
 }
+
+// Função para enviar e-mail usando Nodemailer
+async function enviarEmail(destinatario, assunto, tituloProjeto) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD,
+        },
+    });
+
+    // Estilização da mensagem de e-mail
+    const emailContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          background-color: #f5f5f5;
+          color: #333;
+        }
+    
+        .container {
+          max-width: 600px;
+          margin: 20px auto;
+          padding: 20px;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+        }
+    
+        h2 {
+          color: #1DA1F2;
+        }
+    
+        p {
+          color: #333;
+          line-height: 1.6;
+        }
+    
+        .footer {
+          margin-top: 20px;
+          color: #777;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Notificação de Orientação de Projeto</h2>
+        <p>Prezado(a) Professor(a),</p>
+        <p>Você foi selecionado como orientador do projeto:</p>
+        <h2>"${tituloProjeto}"</h2>
+        <p>Fique à vontade para entrar na plataforma de catalogação. Entre em contato com os autores e discuta os próximos passos do projeto.</p>
+        <p>Agradecemos pela sua contribuição como orientador.</p>
+        <div class="footer">
+          <p>Atenciosamente,<br>Ferramenta de Catalogação de Projetos</p>
+        </div>
+      </div>
+    </body>
+    </html> `
+     
+    const mailOptions = {
+        from: process.env.EMAIL,
+        to: destinatario,
+        subject: assunto,
+        html: emailContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('E-mail enviado com sucesso para:', destinatario);
+    } catch (error) {
+        console.error('Erro ao enviar e-mail:', error);
+        throw error;
+    }
+}
+
+
+
 
 async function buscarProjetosPublicosPorTitulo(titulo, tema) {
     try {
