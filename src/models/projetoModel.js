@@ -50,7 +50,6 @@ async function criarProjeto({
     }
 }
 
-
 async function buscarProjetosPublicosPorTitulo(titulo, tema) {
     try {
         const connection = await connect(); // Conecta ao banco de dados
@@ -60,7 +59,6 @@ async function buscarProjetosPublicosPorTitulo(titulo, tema) {
         if (rows.length === 0) {
             return { success: false, message: 'Projeto não pode ser acessado ou não existe na base de dados' };
         }
-
 
         return { success: true, data: rows };
     } catch (error) {
