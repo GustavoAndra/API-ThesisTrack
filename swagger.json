@@ -115,9 +115,327 @@
           }          
         }
       },
+      "/user/reset-password/request": {
+        "post": {
+          "summary": "Solicitar um código de verificação por e-mail",
+          "tags": ["Usuários"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "description": "Endereço de e-mail do usuário"
+                    }
+                  },
+                  "required": ["email"]
+                },
+                "example": {
+                  "email": "reginaldo-bt@educar.rs.gov.br"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Código de verificação enviado com sucesso"
+            }
+          }
+        }
+      },
+      "/user/update-profile": {
+        "put": {
+          "summary": "Atualizar o perfil do usuário (nome, email ou senha)",
+          "tags": ["Usuários"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "description": "Endereço de e-mail do usuário"
+                    },
+                    "novaSenha": {
+                      "type": "string",
+                      "description": "Nova senha do usuário"
+                    },
+                    "confirmSenha": {
+                      "type": "string",
+                      "description": "Confirmação da nova senha"
+                    },
+                    "newEmail": {
+                      "type": "string",
+                      "description": "Novo endereço de e-mail do usuário"
+                    },
+                    "newNome": {
+                      "type": "string",
+                      "description": "Novo nome do usuário"
+                    },
+                    "codigo": {
+                      "type": "string",
+                      "description": "Código de verificação enviado por e-mail"
+                    },
+                    "updateType": {
+                      "type": "string",
+                      "description": "Tipo de atualização (senha, email, nome, etc.)"
+                    }
+                  },
+                  "required": ["email", "novaSenha", "confirmSenha", "newEmail", "newNome", "codigo", "updateType"]
+                },
+                "example": {
+                  "email": "fgdfs-adsilva26@educar.rs.gov.br",
+                  "novaSenha": "1234",
+                  "confirmSenha": "1234",
+                  "newEmail": "gusfssdftavo-adsilva26@educar.rs.gov.br",
+                  "newNome": "Meliça",
+                  "codigo": "043100",
+                  "updateType": "senha"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Perfil do usuário atualizado com sucesso"
+            }
+          }
+        }
+      },      
+      
+      "/projeto/listar": {
+        "get": {
+          "summary": "Listar todos os projetos",
+          "tags": ["Projetos"],
+          "responses": {
+            "200": {
+              "description": "Lista de projetos obtida com sucesso",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "status": 200,
+                    "msg": "Lista de Projeto",
+                    "resp": [
+                      {
+                        "id_projeto": 7,
+                        "titulo": "Como prevenir uma revolta em um período de guerra",
+                        "tema": "guerra",
+                        "delimitacao": "guerra e como afeta o desenvolvimento humano",
+                        "resumo": "ggjç v çfg çl gf jçxg arg zfgf j afgkf ",
+                        "problema": "falta de empatia",
+                        "alunos": [
+                          {
+                            "id_aluno": 7,
+                            "nome": "Marlon"
+                          },
+                          {
+                            "id_aluno": 34,
+                            "nome": "Malaquias"
+                          }
+                        ],
+                        "professores": [
+                          {
+                            "id_professor": 51,
+                            "funcao": "orientador"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      
+      "/projeto/listar/{id}": {
+        "get": {
+          "summary": "Listar um projeto por ID",
+          "tags": ["Projetos"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID do projeto a ser listado"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Projeto encontrado com sucesso",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "status": 200,
+                    "msg": "Lista de Projeto",
+                    "resp": {
+                      "id_projeto": 7,
+                      "titulo": "Como prevenir uma revolta em um período de guerra",
+                      "tema": "guerra",
+                      "delimitacao": "guerra e como afeta o desenvolvimento humano",
+                      "resumo": "ggjç v çfg çl gf jçxg arg zfgf j afgkf ",
+                      "problema": "falta de empatia",
+                      "alunos": [
+                        {
+                          "id_aluno": 7,
+                          "nome": "Marlon"
+                        },
+                        {
+                          "id_aluno": 34,
+                          "nome": "Malaquias"
+                        }
+                      ],
+                      "professores": [
+                        {
+                          "id_professor": 51,
+                          "funcao": "orientador"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      
+      "/projeto/listar/{projetoId}/pessoa/{id}": {
+        "get": {
+          "summary": "Listar um projeto por ID referenciando seus relacionados",
+          "tags": ["Projetos"],
+          "parameters": [
+            {
+              "name": "projetoId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID do projeto"
+            },
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID da pessoa relacionada ao projeto"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Projeto encontrado com sucesso, referenciando seus relacionados",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "status": 200,
+                    "msg": "Lista de Projeto Pessoa relacionada",
+                    "resp": {
+                      "id_projeto": 7,
+                      "titulo": "Como prevenir uma revolta em um período de guerra",
+                      "tema": "guerra",
+                      "delimitacao": "guerra e como afeta o desenvolvimento humano",
+                      "resumo": "ggjç v çfg çl gf jçxg arg zfgf j afgkf ",
+                      "problema": "falta de empatia",
+                      "alunos": [
+                        {
+                          "id_aluno": 7,
+                          "nome": "Marlon"
+                        },
+                        {
+                          "id_aluno": 34,
+                          "nome": "Malaquias"
+                        }
+                      ],
+                      "professores": [
+                        {
+                          "id_professor": 51,
+                          "funcao": "orientador"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      
+      "/projeto/lista/aluno/curso/{id}": {
+        "get": {
+          "summary": "Listar projetos de alunos com base no curso",
+          "tags": ["Projetos"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              },
+              "description": "ID do curso"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Projeto encontrado com sucesso, referenciando seus relacionados",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "status": 200,
+                    "msg": "Lista de Projeto Curso específico",
+                    "resp": {
+                      "id_projeto": 7,
+                      "titulo": "Como prevenir uma revolta em um período de guerra",
+                      "tema": "guerra",
+                      "delimitacao": "guerra e como afeta o desenvolvimento humano",
+                      "resumo": "ggjç v çfg çl gf jçxg arg zfgf j afgkf ",
+                      "problema": "falta de empatia",
+                      "alunos": [
+                        {
+                          "id_aluno": 7,
+                          "nome": "Marlon"
+                        },
+                        {
+                          "id_aluno": 34,
+                          "nome": "Malaquias"
+                        }
+                      ],
+                      "professores": [
+                        {
+                          "id_professor": 51,
+                          "funcao": "orientador"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      
       "/projeto/adiciona": {
         "post": {
-          "summary": "Cria um novo projeto",
+          "summary": "Criar um novo projeto",
           "tags": ["Projetos"],
           "security": [
             {
@@ -141,63 +459,10 @@
           }
         }
       },
-      "/projeto/listar": {
-        "get": {
-          "summary": "Lista todos os projetos",
-          "tags": ["Projetos"],
-          "security": [
-            {
-              "bearerAuth": []
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Lista de projetos obtida com sucesso"
-            }
-          }
-        }
-      },
-      "/projeto/listar/{id}": {
-        "get": {
-          "summary": "Lista um projeto por ID",
-          "tags": ["Projetos"],
-          "security": [
-            {
-              "bearerAuth": []
-            }
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              },
-              "description": "ID do projeto a ser listado"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Projeto encontrado com sucesso"
-            }
-          }
-        }
-      },
-      "/projeto/mostra": {
-        "get": {
-          "summary": "Lista os projetos na tela de visitantes (Ainda em desenvolvimento)",
-          "tags": ["Projetos"],
-          "responses": {
-            "200": {
-              "description": "Lista de projetos exibida com sucesso"
-            }
-          }
-        }
-      },
+      
       "/projeto/atualiza/{id}": {
         "put": {
-          "summary": "Atualiza um projeto por ID",
+          "summary": "Atualizar um projeto por ID",
           "tags": ["Projetos"],
           "security": [
             {
@@ -222,9 +487,10 @@
           }
         }
       },
+      
       "/projeto/delete/{id}": {
         "delete": {
-          "summary": "Deleta um projeto por ID",
+          "summary": "Deletar um projeto por ID",
           "tags": ["Projetos"],
           "security": [
             {
@@ -248,7 +514,32 @@
             }
           }
         }
+      },
+      
+      "/buscar-projetos": {
+        "get": {
+          "summary": "Buscar projetos pelo título",
+          "tags": ["Projetos"],
+          "responses": {
+            "200": {
+              "description": "Projetos encontrados com sucesso"
+            }
+          }
+        }
+      },
+      
+      "/buscar-projetos/ano": {
+        "get": {
+          "summary": "Buscar projetos públicos por ano",
+          "tags": ["Projetos"],
+          "responses": {
+            "200": {
+              "description": "Projetos encontrados com sucesso"
+            }
+          }
+        }
       }
+      
     },
     "components": {
         "schemas": {
