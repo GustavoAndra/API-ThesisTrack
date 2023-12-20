@@ -1,5 +1,48 @@
 const projetoModel = require('../models/projetoModel');
 
+// Função auxiliar para desestruturação
+function obterDadosProjeto(req) {
+  const {
+    titulo,
+    tema,
+    problema,
+    resumo,
+    abstract,
+    objetivo_geral,
+    objetivo_especifico,
+    url_projeto,
+    arquivo,
+    publico,
+    logo_projeto,
+    alunos,
+    professores,
+    ano_publicacao
+  } = req.body;
+
+  return {
+    titulo,
+    tema,
+    problema,
+    resumo,
+    abstract,
+    objetivo_geral,
+    objetivo_especifico,
+    url_projeto,
+    arquivo,
+    publico,
+    logo_projeto,
+    alunos,
+    professores,
+    ano_publicacao
+  };
+}
+
+// Função para tratar erros
+function handleError(res, error, errorMessage) {
+  console.error(error);
+  res.status(500).json({ error: errorMessage });
+}
+
 // Função para tratar a resposta e enviar a resposta HTTP adequada
 function handleResponse(res, result) {
   if (result.success) {
@@ -11,68 +54,32 @@ function handleResponse(res, result) {
 
 // Controlador para criar um novo projeto
 async function criarProjeto(req, res) {
-  const {
-    titulo, 
-    tema, 
-    problema, 
-    resumo, 
-    abstract, 
-    objetivo_geral, 
-    objetivo_especifico,
-    url_projeto,
-    arquivo,
-    publico, 
-    logo_projeto,
-    alunos,
-    professores,
-    ano_publicacao 
-  } = req.body;
-
-  const result = await projetoModel.criarProjeto({
-    titulo, 
-    tema, 
-    problema, 
-    resumo, 
-    abstract, 
-    objetivo_geral, 
-    objetivo_especifico,
-    url_projeto,
-    arquivo,
-    publico, 
-    logo_projeto,
-    alunos,
-    professores,
-    ano_publicacao 
-  });
-
+  const dadosProjeto = obterDadosProjeto(req);
+  const result = await projetoModel.criarProjeto(dadosProjeto);
   handleResponse(res, result);
 }
 
-//Controlador para buscar um projeto por título
+// Controlador para buscar um projeto por título
 async function buscarProjetosPorTitulo(req, res) {
   const { titulo } = req.query;
-  
+
   try {
-      const projetos = await projetoModel.buscarProjetosPublicosPorTitulo(titulo);
-      
-      res.status(200).json(projetos);
+    const projetos = await projetoModel.buscarProjetosPublicosPorTitulo(titulo);
+    res.status(200).json(projetos);
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Erro ao buscar projetos por título' });
+    handleError(res, error, 'Erro ao buscar projetos por título');
   }
 }
 
-//Controlador para buscar um projeto por ano de publicação
+// Controlador para buscar um projeto por ano de publicação
 async function buscarProjetosPublicosPorAno(req, res) {
   const { ano } = req.query;
-  
+
   try {
-      const projetos = await projetoModel.buscarProjetosPublicosPorAno(ano);
-      
-      res.status(200).json(projetos);
+    const projetos = await projetoModel.buscarProjetosPublicosPorAno(ano);
+    res.status(200).json(projetos);
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Erro ao buscar projetos por ano específico' });
+    handleError(res, error, 'Erro ao buscar projetos por ano específico');
   }
 }
 
@@ -83,27 +90,22 @@ async function listarProjetos(req, res) {
 }
 
 // Controlador para listar um projeto específico por ID
-async function listarProjetoPorId(req, res){
-const projetoId = req.params.id;
-
-const result = await projetoModel.listarProjetoPorId(projetoId);
-
-handleResponse(res, result);
-};
+async function listarProjetoPorId(req, res) {
+  const projetoId = req.params.id;
+  const result = await projetoModel.listarProjetoPorId(projetoId);
+  handleResponse(res, result);
+}
 
 // Controlador para listar um projeto específico por ID com aluno relacionado
 async function listarProjetoPorIdDaPessoa(req, res) {
   const projetoId = req.params.projetoId;
   const pessoaId = req.params.id;
-
   const result = await projetoModel.listarProjetoPorIdDaPessoa(projetoId, pessoaId);
-
   handleResponse(res, result);
 }
 
-
 // Controlador para listar projetos relacionados a um curso
-async function listarProjetosPorCurso(req, res)  {
+async function listarProjetosPorCurso(req, res) {
   const cursoId = req.params.id;
 
   try {
@@ -115,47 +117,15 @@ async function listarProjetosPorCurso(req, res)  {
       res.status(500).json({ error: result.message });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro interno no servidor' });
+    handleError(res, error, 'Erro interno no servidor');
   }
 }
 
 // Controlador para atualizar um projeto existente
 async function atualizarProjeto(req, res) {
   const projetoId = req.params.id;
-  const {
-    titulo, 
-    tema, 
-    problema, 
-    resumo, 
-    abstract, 
-    objetivo_geral, 
-    objetivo_especifico,
-    url_projeto,
-    arquivo,
-    publico, 
-    logo_projeto,
-    alunos,
-    professores,
-    ano_publicacao 
-  } = req.body;
-
-  const result = await projetoModel.atualizarProjeto(projetoId, {
-    titulo, 
-    tema, 
-    problema, 
-    resumo, 
-    abstract, 
-    objetivo_geral, 
-    objetivo_especifico,
-    url_projeto,
-    arquivo,
-    publico, 
-    logo_projeto,
-    alunos,
-    professores,
-    ano_publicacao 
-  });
+  const dadosProjeto = obterDadosProjeto(req);
+  const result = await projetoModel.atualizarProjeto(projetoId, dadosProjeto);
   handleResponse(res, result);
 }
 

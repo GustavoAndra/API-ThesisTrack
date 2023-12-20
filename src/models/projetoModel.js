@@ -169,9 +169,6 @@ async function enviarEmail(destinatario, assunto, tituloProjeto) {
     }
 }
 
-
-
-
 async function buscarProjetosPublicosPorTitulo(titulo, tema) {
     try {
         const connection = await connect(); // Conecta ao banco de dados

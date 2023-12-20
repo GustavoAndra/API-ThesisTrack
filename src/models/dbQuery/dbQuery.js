@@ -151,19 +151,20 @@ GROUP BY projeto.id_projeto`,
   
   // Consulta para listar projetos de um curso específico
   SELECT_CURSO_ALUNO_POR_ID: `
-    SELECT 
-      projeto.*,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
-      JSON_ARRAYAGG(DISTINCT JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
-    FROM projeto
-    JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
-    JOIN aluno_curso ON aluno_projeto.aluno_pessoa_id_pessoa = aluno_curso.aluno_pessoa_id_pessoa
-    LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
-    LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
-    LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
-    WHERE projeto.publico = 1
-    AND aluno_curso.curso_id_curso = ?
-    GROUP BY projeto.id_projeto;`,
+  SELECT 
+  projeto.*,
+  JSON_ARRAYAGG(JSON_OBJECT('id', autor.id_pessoa, 'nome', autor.nome)) AS autores,
+  JSON_ARRAYAGG(JSON_OBJECT('id', orientador.id_pessoa, 'nome', orientador.nome)) AS orientadores
+FROM projeto
+JOIN aluno_projeto ON projeto.id_projeto = aluno_projeto.projeto_id_projeto
+JOIN aluno_curso ON aluno_projeto.aluno_pessoa_id_pessoa = aluno_curso.aluno_pessoa_id_pessoa
+LEFT JOIN pessoa AS autor ON aluno_projeto.aluno_pessoa_id_pessoa = autor.id_pessoa
+LEFT JOIN orientacao ON projeto.id_projeto = orientacao.projeto_id_projeto
+LEFT JOIN pessoa AS orientador ON orientacao.professor_pessoa_id_pessoa = orientador.id_pessoa
+WHERE projeto.publico = 1
+  AND aluno_curso.curso_id_curso = ?
+GROUP BY projeto.id_projeto, autor.id_pessoa, orientador.id_pessoa;
+`,
   
   // Consulta para verificar se um projeto com determinado ID existe
   VERIFICA_PROJETO: 'SELECT 1 FROM projeto WHERE id_projeto = ?',
