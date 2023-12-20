@@ -3,7 +3,7 @@
     "info": {
       "title": "API Ferramenta de Projeto",
       "description": "Ferramentas para projetos, como: catalogação de projetos e controle de tarefas.",
-      "termsOfService": "https://api-thesistrack.onrender.com/terms",
+      "termsOfService": "https://api-thesis-track.vercel.app/terms",
       "contact": {
         "email": "gustavobn509@gmail.com"
       },
@@ -15,7 +15,7 @@
           "description": "Servidor Local"
         },
         {
-          "url": "https://api-thesistrack.onrender.com",
+          "url": "https://api-thesis-track.vercel.app/",
           "description": "API no ar"
         }
       ],
@@ -432,6 +432,29 @@
           }
         }
       },
+      "/buscar-projetos": {
+        "get": {
+          "summary": "Buscar projetos pelo título",
+          "tags": ["Projetos"],
+          "responses": {
+            "200": {
+              "description": "Projetos encontrados com sucesso"
+            }
+          }
+        }
+      },
+      
+      "/buscar-projetos/ano": {
+        "get": {
+          "summary": "Buscar projetos públicos por ano",
+          "tags": ["Projetos"],
+          "responses": {
+            "200": {
+              "description": "Projetos encontrados com sucesso"
+            }
+          }
+        }
+      },
       
       "/projeto/adiciona": {
         "post": {
@@ -514,32 +537,7 @@
             }
           }
         }
-      },
-      
-      "/buscar-projetos": {
-        "get": {
-          "summary": "Buscar projetos pelo título",
-          "tags": ["Projetos"],
-          "responses": {
-            "200": {
-              "description": "Projetos encontrados com sucesso"
-            }
-          }
-        }
-      },
-      
-      "/buscar-projetos/ano": {
-        "get": {
-          "summary": "Buscar projetos públicos por ano",
-          "tags": ["Projetos"],
-          "responses": {
-            "200": {
-              "description": "Projetos encontrados com sucesso"
-            }
-          }
-        }
       }
-      
     },
     "components": {
         "schemas": {
