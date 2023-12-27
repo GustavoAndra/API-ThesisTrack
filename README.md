@@ -48,7 +48,7 @@ Para instalar e executar o projeto, siga estas etapas:
 
 ## Documentação Adicional
 
-Para obter mais informações e detalhes sobre como usar a API, consulte a [documentação completa](https://api-thesis-track.vercel.app/api-docs/).
+Para obter mais informações e detalhes sobre como usar a API, consulte a [documentação completa](https://api-thesistrack.onrender.com/api-docs/).
 
 ## Contato
 
